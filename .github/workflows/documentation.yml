@@ -18,7 +18,7 @@ jobs:
         with:
           toolchain: stable
       - name: Build Rust documentation
-        run: cd api && cargo doc --no-deps --document-private-items
+        run: (cd api && cargo doc --no-deps --document-private-items)
       - name: Copy index.html to docs
         run: cp .github/index.html api/target/doc/
       - name: Deploy
