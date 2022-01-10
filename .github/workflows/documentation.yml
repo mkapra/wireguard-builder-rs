@@ -18,11 +18,11 @@ jobs:
         with:
           toolchain: stable
       - name: Build Rust documentation
-        run: cargo doc --no-deps --document-private-items
+        run: cd api && cargo doc --no-deps --document-private-items
       - name: Copy index.html to docs
-        run: cp .github/index.html target/doc/
+        run: cp .github/index.html api/target/doc/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/doc
+          publish_dir: ./api/target/doc

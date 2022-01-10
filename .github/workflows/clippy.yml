@@ -3,6 +3,8 @@ name: Clippy check
 jobs:
   clippy_check:
     runs-on: ubuntu-latest
+    env:
+        working-directory: ./api
     steps:
       - uses: actions/checkout@v1
       - run: rustup component add clippy
