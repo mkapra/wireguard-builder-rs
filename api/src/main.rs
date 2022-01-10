@@ -27,6 +27,7 @@ async fn graphql_request(
 
 #[rocket::launch]
 fn rocket() -> _ {
+    let test = 0;
     rocket::build().manage(create_schema()).mount(
         "/",
         routes![graphql_query, graphql_request, graphql_playground],
