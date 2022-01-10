@@ -1,6 +1,2 @@
-[package]
-name = "wireguard-builder-rs"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
+[workspace]
+members = ["api"]
