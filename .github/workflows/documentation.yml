@@ -1,9 +1,9 @@
 name: Build Rust documentation and publish it with github pages
 
-on: [push]
-  # push:
-  #   branches:
-  #     - main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   documentation:
