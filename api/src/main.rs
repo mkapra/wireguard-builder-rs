@@ -1,14 +1,12 @@
 use dotenv::dotenv;
 use std::env;
-use async_graphql::{
-    http::{playground_source, GraphQLPlaygroundConfig},
-};
+use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
 use diesel::{PgConnection, r2d2::{ConnectionManager, Pool}};
 use rocket::{response::content, routes, State};
 
 mod schemas;
-use schemas::{GrahpQLSchema, create_schema};
+use schemas::{create_schema, GrahpQLSchema};
 
 #[macro_use]
 extern crate diesel;
