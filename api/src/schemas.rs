@@ -8,7 +8,9 @@ use diesel::{
 mod keypair;
 use keypair::{create_keypair, Keypair};
 mod dns_server;
-use dns_server::{create_dns_server, update_dns_server, DnsServer, delete_dns_server, InputDnsServer};
+use dns_server::{
+    create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
+};
 
 use crate::diesel::prelude::*;
 use crate::schema::dns_servers::dsl::*;
@@ -114,8 +116,7 @@ impl Mutation {
     async fn delete_dns_server<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        #[graphql(desc="The id of the server that should be deleted")]
-        server_id: i32
+        #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
     ) -> Result<bool> {
         let connection = ctx
             .data::<DatabaseConnection>()

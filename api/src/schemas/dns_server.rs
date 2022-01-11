@@ -114,13 +114,16 @@ pub fn update_dns_server<'a>(
 pub fn delete_dns_server(connection: &SingleConnection, server_id: i32) -> Result<()> {
     match get_dns_server_by_id(connection, server_id) {
         Some(server) => {
-            if let Err(e) =  diesel::delete(&server).execute(connection) {
+            if let Err(e) = diesel::delete(&server).execute(connection) {
                 return Err(Error::from(e));
             } else {
                 return Ok(());
             }
-        },
-        None => Err(Error::new(format!("DNS Server with id {} not found", server_id)))
+        }
+        None => Err(Error::new(format!(
+            "DNS Server with id {} not found",
+            server_id
+        ))),
     }
 }
 
