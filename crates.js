@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["wireguard_builder_rs"];
