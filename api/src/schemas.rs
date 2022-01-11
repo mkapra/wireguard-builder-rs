@@ -43,24 +43,14 @@ pub struct QueryRoot;
 impl QueryRoot {
     /// Returns all the keypairs from the database
     async fn keypairs<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<Keypair> {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
-        keypairs.load::<Keypair>(&connection).unwrap()
+        keypairs.load::<Keypair>(&create_connection(ctx)).unwrap()
     }
 
     /// Returns all the dns servers from the database
     async fn dns_servers<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<DnsServer> {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
-        dns_servers.load::<DnsServer>(&connection).unwrap()
+        dns_servers
+            .load::<DnsServer>(&create_connection(ctx))
+            .unwrap()
     }
 }
 
@@ -71,14 +61,8 @@ pub struct Mutation;
 impl Mutation {
     /// Generates a keypair
     async fn generate_keypair<'ctx>(&self, ctx: &Context<'ctx>) -> Keypair {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
         let (priv_key, pub_key) = Keypair::generate_keypair();
-        create_keypair(&connection, &pub_key, &priv_key)
+        create_keypair(&create_connection(ctx), &pub_key, &priv_key)
     }
 
     /// Creates a new dns server
@@ -87,13 +71,7 @@ impl Mutation {
         ctx: &Context<'ctx>,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
-        create_dns_server(&connection, &dns_server)
+        create_dns_server(&create_connection(ctx), &dns_server)
     }
 
     /// Updates an existing dns server
@@ -103,13 +81,7 @@ impl Mutation {
         server_id: i32,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
-        update_dns_server(&connection, server_id, &dns_server)
+        update_dns_server(&create_connection(ctx), server_id, &dns_server)
     }
 
     /// Deletes a dns server
@@ -118,12 +90,17 @@ impl Mutation {
         ctx: &Context<'ctx>,
         #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
     ) -> Result<bool> {
-        let connection = ctx
-            .data::<DatabaseConnection>()
-            .expect("Could not retrieve connection from context")
-            .get()
-            .expect("Recieved no connection from pool");
-
-        delete_dns_server(&connection, server_id).map(|_| true)
+        delete_dns_server(&create_connection(ctx), server_id).map(|_| true)
     }
+}
+
+/// Retrieves a single database connection from the database connection pool and returns it
+///
+/// # Arguments
+/// * `ctx` - The context of the graphql request that includes the database connection pool
+fn create_connection<'ctx>(ctx: &Context<'ctx>) -> SingleConnection {
+    ctx.data::<DatabaseConnection>()
+        .expect("Could not retrieve connection from context")
+        .get()
+        .expect("Recieved no connection from pool")
 }
