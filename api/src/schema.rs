@@ -1,3 +1,4 @@
+//! Diesel schema of the database
 table! {
     clients (id) {
         id -> Int4,
