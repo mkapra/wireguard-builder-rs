@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["wireguard_builder_rs"] = [{"text":"impl InputType for <a class=\"struct\" href=\"wireguard_builder_rs/schemas/dns_server/struct.InputDnsServer.html\" title=\"struct wireguard_builder_rs::schemas::dns_server::InputDnsServer\">InputDnsServer</a>","synthetic":false,"types":["wireguard_builder_rs::schemas::dns_server::InputDnsServer"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
