@@ -8,13 +8,11 @@ use diesel::{
 mod keypair;
 use keypair::{create_keypair, Keypair};
 mod dns_server;
-use dns_server::{create_dns_server, DnsServer};
+use dns_server::{create_dns_server, update_dns_server, DnsServer, InputDnsServer};
 
 use crate::diesel::prelude::*;
 use crate::schema::dns_servers::dsl::*;
 use crate::schema::keypairs::dsl::*;
-
-use self::dns_server::InputDnsServer;
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -100,5 +98,24 @@ impl Mutation {
             .expect("Recieved no connection from pool");
 
         create_dns_server(&connection, &dns_server)
+    }
+
+    /// Updates an existing dns server
+    ///
+    /// # Returns
+    /// See [`dns_server::update_dns_server()`]
+    async fn update_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        server_id: i32,
+        dns_server: InputDnsServer,
+    ) -> Result<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        update_dns_server(&connection, server_id, &dns_server)
     }
 }
