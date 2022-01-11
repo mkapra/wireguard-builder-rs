@@ -7,9 +7,14 @@ use diesel::{
 
 mod keypair;
 use keypair::{create_keypair, Keypair};
+mod dns_server;
+use dns_server::{create_dns_server, DnsServer};
 
 use crate::diesel::prelude::*;
 use crate::schema::keypairs::dsl::*;
+use crate::schema::dns_servers::dsl::*;
+
+use self::dns_server::InputDnsServer;
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -46,6 +51,17 @@ impl QueryRoot {
 
         keypairs.load::<Keypair>(&connection).unwrap()
     }
+
+    /// Returns all the dns servers from the database
+    async fn dns_servers<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        dns_servers.load::<DnsServer>(&connection).unwrap()
+    }
 }
 
 /// The root of the mutation type
@@ -63,5 +79,22 @@ impl Mutation {
 
         let (priv_key, pub_key) = Keypair::generate_keypair();
         create_keypair(&connection, &pub_key, &priv_key)
+    }
+
+    /// Creates a new dns server
+    ///
+    /// # Returns
+    /// Returns the created DNS server or an error. This error can be:
+    ///
+    /// * `Validation`: If the validation of the ip address failed
+    /// * `Duplication`: See [`dns_server::create_dns_server()`]
+    async fn create_dns_server<'ctx>(&self, ctx: &Context<'ctx>, dns_server: InputDnsServer) -> Result<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        create_dns_server(&connection, &dns_server)
     }
 }
