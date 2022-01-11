@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["wireguard_builder_rs"] = [{"text":"impl&lt;'a, 'insert&gt; UndecoratedInsertRecord&lt;<a class=\"struct\" href=\"wireguard_builder_rs/schema/keypairs/struct.table.html\" title=\"struct wireguard_builder_rs::schema::keypairs::table\">table</a>&gt; for <a class=\"struct\" href=\"wireguard_builder_rs/schemas/keypair/struct.NewKeypair.html\" title=\"struct wireguard_builder_rs::schemas::keypair::NewKeypair\">NewKeypair</a>&lt;'a&gt;","synthetic":false,"types":["wireguard_builder_rs::schemas::keypair::NewKeypair"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
