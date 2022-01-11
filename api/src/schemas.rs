@@ -80,12 +80,6 @@ impl Mutation {
     }
 
     /// Creates a new dns server
-    ///
-    /// # Returns
-    /// Returns the created DNS server or an error. This error can be:
-    ///
-    /// * `Validation`: If the validation of the ip address failed
-    /// * `Duplication`: See [`dns_server::create_dns_server()`]
     async fn create_dns_server<'ctx>(
         &self,
         ctx: &Context<'ctx>,
@@ -101,9 +95,6 @@ impl Mutation {
     }
 
     /// Updates an existing dns server
-    ///
-    /// # Returns
-    /// See [`dns_server::update_dns_server()`]
     async fn update_dns_server<'ctx>(
         &self,
         ctx: &Context<'ctx>,
