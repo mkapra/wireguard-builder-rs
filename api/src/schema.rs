@@ -1,4 +1,3 @@
-//! Diesel schema of the database
 table! {
     clients (id) {
         id -> Int4,
@@ -56,7 +55,7 @@ table! {
         ip_network -> Text,
         subnetmask -> Int4,
         listen_port -> Int4,
-        interface_name -> Int4,
+        interface_name -> Text,
     }
 }
 
