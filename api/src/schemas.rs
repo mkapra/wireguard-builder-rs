@@ -12,12 +12,12 @@ use keypair::{create_keypair, Keypair};
 use crate::diesel::prelude::*;
 use crate::schema::keypairs::dsl::*;
 
-pub type GrahpQLSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
 pub type DatabaseConnection = Pool<ConnectionManager<PgConnection>>;
 pub type SingleConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
 pub fn create_schema(connection: Pool<ConnectionManager<PgConnection>>) -> GrahpQLSchema {
-    Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    Schema::build(QueryRoot, Mutation, EmptySubscription)
         .data(connection)
         .finish()
 }
@@ -36,7 +36,12 @@ impl QueryRoot {
 
         keypairs.load::<Keypair>(&connection).unwrap()
     }
+}
 
+pub struct Mutation;
+
+#[Object]
+impl Mutation {
     /// Generates a keypair
     async fn generate_keypair<'ctx>(&self, ctx: &Context<'ctx>) -> Keypair {
         let connection = ctx
