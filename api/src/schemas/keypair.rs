@@ -1,3 +1,4 @@
+//! Module that holds everything that is necessary for the `Keypairs`
 use async_graphql::*;
 use diesel::{Insertable, Queryable};
 use std::process::{Command, Stdio};
@@ -7,6 +8,7 @@ use crate::diesel::prelude::*;
 use crate::schema::keypairs;
 use crate::schemas::SingleConnection;
 
+/// A keypair that is used by a client or server
 #[derive(SimpleObject, Queryable, Debug)]
 pub struct Keypair {
     /// The id of the keypair
@@ -24,6 +26,18 @@ pub struct NewKeypair<'a> {
     pub private_key: &'a str,
 }
 
+// Creates a new keypair in the database
+//
+// # Arguments
+// * `connection` - A connection to the database
+// * `public_key` - The public key
+// * `private_key` - The private key
+//
+// # Returns
+// Returns the created keypair
+//
+// # Panics
+// Panics if an error occured while saving to the database.
 pub fn create_keypair<'a>(
     connection: &SingleConnection,
     public_key: &'a str,
