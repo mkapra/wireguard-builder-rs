@@ -35,7 +35,7 @@ pub struct InputDnsServer {
     pub description: Option<String>,
     /// The ip address of the dns server
     #[graphql(validator(ip))]
-    pub ip_address: String
+    pub ip_address: String,
 }
 
 /// Creates a new dns server in the database
@@ -52,7 +52,7 @@ pub struct InputDnsServer {
 /// * Duplicate `ip_address`
 pub fn create_dns_server<'a>(
     connection: &SingleConnection,
-    dns_server: &InputDnsServer
+    dns_server: &InputDnsServer,
 ) -> Result<DnsServer> {
     let new_dns_server = NewDnsServer {
         name: &dns_server.name,

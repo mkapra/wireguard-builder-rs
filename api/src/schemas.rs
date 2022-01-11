@@ -11,8 +11,8 @@ mod dns_server;
 use dns_server::{create_dns_server, DnsServer};
 
 use crate::diesel::prelude::*;
-use crate::schema::keypairs::dsl::*;
 use crate::schema::dns_servers::dsl::*;
+use crate::schema::keypairs::dsl::*;
 
 use self::dns_server::InputDnsServer;
 
@@ -88,7 +88,11 @@ impl Mutation {
     ///
     /// * `Validation`: If the validation of the ip address failed
     /// * `Duplication`: See [`dns_server::create_dns_server()`]
-    async fn create_dns_server<'ctx>(&self, ctx: &Context<'ctx>, dns_server: InputDnsServer) -> Result<DnsServer> {
+    async fn create_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        dns_server: InputDnsServer,
+    ) -> Result<DnsServer> {
         let connection = ctx
             .data::<DatabaseConnection>()
             .expect("Could not retrieve connection from context")
