@@ -48,7 +48,9 @@ impl QueryRoot {
 
     /// Returns all the dns servers from the database
     async fn dns_servers<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<DnsServer> {
-        dns_servers.load::<DnsServer>(&create_connection(ctx)).unwrap()
+        dns_servers
+            .load::<DnsServer>(&create_connection(ctx))
+            .unwrap()
     }
 }
 
@@ -97,8 +99,7 @@ impl Mutation {
 /// # Arguments
 /// * `ctx` - The context of the graphql request that includes the database connection pool
 fn create_connection<'ctx>(ctx: &Context<'ctx>) -> SingleConnection {
-    ctx
-        .data::<DatabaseConnection>()
+    ctx.data::<DatabaseConnection>()
         .expect("Could not retrieve connection from context")
         .get()
         .expect("Recieved no connection from pool")
