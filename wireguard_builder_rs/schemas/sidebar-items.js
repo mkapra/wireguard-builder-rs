@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["create_schema",""]],"struct":[["QueryRoot",""]],"type":[["GrahpQLSchema",""]]});

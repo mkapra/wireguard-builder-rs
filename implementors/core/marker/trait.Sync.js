@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["wireguard_builder_rs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.57.0/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"wireguard_builder_rs/schemas/struct.QueryRoot.html\" title=\"struct wireguard_builder_rs::schemas::QueryRoot\">QueryRoot</a>","synthetic":true,"types":["wireguard_builder_rs::schemas::QueryRoot"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
