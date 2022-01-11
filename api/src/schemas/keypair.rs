@@ -1,7 +1,7 @@
-use std::process::{Command, Stdio};
-use std::{io::Write, str};
 use async_graphql::*;
 use diesel::{Insertable, Queryable};
+use std::process::{Command, Stdio};
+use std::{io::Write, str};
 
 use crate::diesel::prelude::*;
 use crate::schema::keypairs;
@@ -69,7 +69,9 @@ impl Keypair {
             panic!("Could not read: {}", e);
         }
 
-        let pubkey_output = pubkey_command.wait_with_output().expect("Did not get a response from wg pubkey");
+        let pubkey_output = pubkey_command
+            .wait_with_output()
+            .expect("Did not get a response from wg pubkey");
         let pub_key = str::from_utf8(&pubkey_output.stdout)
             .expect("Could not parse public key")
             .replace("\n", "");
