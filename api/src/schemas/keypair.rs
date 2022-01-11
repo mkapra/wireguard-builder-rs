@@ -76,6 +76,9 @@ impl Keypair {
             .expect("Could not parse public key")
             .replace("\n", "");
 
+        println!("PRIVKEY: {}", priv_key);
+        println!("PUBKEy: {}", pub_key);
+
         (priv_key, pub_key)
     }
 }

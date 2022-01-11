@@ -49,6 +49,6 @@ impl Mutation {
             .expect("Recieved no connection from pool");
 
         let (priv_key, pub_key) = Keypair::generate_keypair();
-        create_keypair(&connection, &priv_key, &pub_key)
+        create_keypair(&connection, &pub_key, &priv_key)
     }
 }
