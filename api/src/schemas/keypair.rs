@@ -22,7 +22,11 @@ pub struct NewKeypair<'a> {
     pub public_key: &'a str,
 }
 
-pub fn create_keypair<'a>(connection: &SingleConnection, private_key: &'a str, public_key: &'a str) -> Keypair {
+pub fn create_keypair<'a>(
+    connection: &SingleConnection,
+    private_key: &'a str,
+    public_key: &'a str,
+) -> Keypair {
     let new_keypair = NewKeypair {
         private_key,
         public_key,

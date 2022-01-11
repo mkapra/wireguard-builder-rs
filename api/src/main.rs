@@ -1,9 +1,12 @@
-use dotenv::dotenv;
-use std::env;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
-use diesel::{PgConnection, r2d2::{ConnectionManager, Pool}};
+use diesel::{
+    r2d2::{ConnectionManager, Pool},
+    PgConnection,
+};
+use dotenv::dotenv;
 use rocket::{response::content, routes, State};
+use std::env;
 
 mod schemas;
 use schemas::{create_schema, GrahpQLSchema};
@@ -40,8 +43,10 @@ async fn graphql_request(
 
 #[rocket::launch]
 fn rocket() -> _ {
-    rocket::build().manage(create_schema(establish_connection())).mount(
-        "/",
-        routes![graphql_query, graphql_request, graphql_playground],
-    )
+    rocket::build()
+        .manage(create_schema(establish_connection()))
+        .mount(
+            "/",
+            routes![graphql_query, graphql_request, graphql_playground],
+        )
 }
