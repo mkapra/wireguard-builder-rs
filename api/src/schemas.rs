@@ -7,8 +7,13 @@ use diesel::{
 
 mod keypair;
 use keypair::{create_keypair, Keypair};
+mod dns_server;
+use dns_server::{
+    create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
+};
 
 use crate::diesel::prelude::*;
+use crate::schema::dns_servers::dsl::*;
 use crate::schema::keypairs::dsl::*;
 
 /// Represents the schema that is created by [`create_schema()`]
@@ -46,6 +51,17 @@ impl QueryRoot {
 
         keypairs.load::<Keypair>(&connection).unwrap()
     }
+
+    /// Returns all the dns servers from the database
+    async fn dns_servers<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        dns_servers.load::<DnsServer>(&connection).unwrap()
+    }
 }
 
 /// The root of the mutation type
@@ -63,5 +79,51 @@ impl Mutation {
 
         let (priv_key, pub_key) = Keypair::generate_keypair();
         create_keypair(&connection, &pub_key, &priv_key)
+    }
+
+    /// Creates a new dns server
+    async fn create_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        dns_server: InputDnsServer,
+    ) -> Result<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        create_dns_server(&connection, &dns_server)
+    }
+
+    /// Updates an existing dns server
+    async fn update_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        server_id: i32,
+        dns_server: InputDnsServer,
+    ) -> Result<DnsServer> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        update_dns_server(&connection, server_id, &dns_server)
+    }
+
+    /// Deletes a dns server
+    async fn delete_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
+    ) -> Result<bool> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        delete_dns_server(&connection, server_id).map(|_| true)
     }
 }
