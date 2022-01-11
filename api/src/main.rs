@@ -1,11 +1,9 @@
-use async_graphql::{
-    http::{playground_source, GraphQLPlaygroundConfig},
-};
+use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
 use rocket::{response::content, routes, State};
 
 mod schemas;
-use schemas::{GrahpQLSchema, create_schema};
+use schemas::{create_schema, GrahpQLSchema};
 
 #[rocket::get("/")]
 fn graphql_playground() -> content::Html<String> {

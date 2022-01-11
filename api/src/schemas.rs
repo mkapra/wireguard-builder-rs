@@ -12,6 +12,6 @@ pub struct QueryRoot;
 impl QueryRoot {
     /// Says hello
     async fn say_hello(&self) -> String {
-      "Hello World!".to_owned()
+        "Hello World!".to_owned()
     }
 }
