@@ -6,7 +6,7 @@ use rocket::{response::content, routes, State};
 use std::env;
 
 mod schemas;
-use schemas::{create_schema, GrahpQLSchema, DatabaseConnection};
+use schemas::{create_schema, DatabaseConnection, GrahpQLSchema};
 
 #[macro_use]
 extern crate diesel;
