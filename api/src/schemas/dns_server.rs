@@ -102,6 +102,28 @@ pub fn update_dns_server<'a>(
     )));
 }
 
+/// Delete the dns server with the given id from the database
+///
+/// # Arguments
+/// * `connection` - The connection to the database
+/// * `server_id` - The id of the server that should be deleted
+///
+/// # Returns
+/// An empty result if the element was deleted or an error if the server was not found or could not be
+/// deleted
+pub fn delete_dns_server(connection: &SingleConnection, server_id: i32) -> Result<()> {
+    match get_dns_server_by_id(connection, server_id) {
+        Some(server) => {
+            if let Err(e) =  diesel::delete(&server).execute(connection) {
+                return Err(Error::from(e));
+            } else {
+                return Ok(());
+            }
+        },
+        None => Err(Error::new(format!("DNS Server with id {} not found", server_id)))
+    }
+}
+
 /// Retrieves the dns server with the given id from the database
 ///
 /// # Arguments

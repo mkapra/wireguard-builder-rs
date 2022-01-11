@@ -8,7 +8,7 @@ use diesel::{
 mod keypair;
 use keypair::{create_keypair, Keypair};
 mod dns_server;
-use dns_server::{create_dns_server, update_dns_server, DnsServer, InputDnsServer};
+use dns_server::{create_dns_server, update_dns_server, DnsServer, delete_dns_server, InputDnsServer};
 
 use crate::diesel::prelude::*;
 use crate::schema::dns_servers::dsl::*;
@@ -108,5 +108,21 @@ impl Mutation {
             .expect("Recieved no connection from pool");
 
         update_dns_server(&connection, server_id, &dns_server)
+    }
+
+    /// Deletes a dns server
+    async fn delete_dns_server<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        #[graphql(desc="The id of the server that should be deleted")]
+        server_id: i32
+    ) -> Result<bool> {
+        let connection = ctx
+            .data::<DatabaseConnection>()
+            .expect("Could not retrieve connection from context")
+            .get()
+            .expect("Recieved no connection from pool");
+
+        delete_dns_server(&connection, server_id).map(|_| true)
     }
 }
