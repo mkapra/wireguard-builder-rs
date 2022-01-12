@@ -25,15 +25,15 @@ pub struct QueryableServer {
 #[graphql(complex)]
 pub struct Server {
     /// The id
-    id: i32,
+    pub id: i32,
     /// A unique name
-    name: String,
+    pub name: String,
     /// An optional description
-    description: Option<String>,
+    pub description: Option<String>,
     /// The interface where all traffic should be forwarded to
-    forward_interface: Option<String>,
+    pub forward_interface: Option<String>,
     /// The ip address or DNS name that is used by the client to connect to the server
-    external_ip_address: String,
+    pub external_ip_address: String,
 }
 
 impl From<QueryableServer> for Server {
@@ -50,7 +50,7 @@ impl From<QueryableServer> for Server {
 
 #[ComplexObject]
 impl Server {
-    async fn keypair(&self, ctx: &Context<'_>) -> Result<Keypair> {
+    pub async fn keypair(&self, ctx: &Context<'_>) -> Result<Keypair> {
         use crate::schema::keypairs::dsl::*;
         let connection = create_connection(ctx);
         let server = get_server_by_id(&connection, self.id)?;

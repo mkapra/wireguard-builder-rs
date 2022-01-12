@@ -1,12 +1,28 @@
 //! Module that holds everything that is necessary for the `Client`
-use super::*;
+use std::collections::BTreeMap;
+
+use handlebars::Handlebars;
 
 use super::dns_server::get_dns_server_by_id;
 use super::keypair::get_keypair_by_id;
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id};
 use super::vpn_network::get_vpn_network_by_id;
+use super::*;
 use crate::schema::clients;
+use crate::schema::vpn_ip_addresses;
+use crate::schemas::vpn_ip_address::VpnIpAddress;
 use crate::validate::is_ip_in_network;
+
+const CLIENT_CONFIG: &str = r#"[Interface]
+PrivateKey = {{clientPrivateKey}}
+Address = {{clientIp}}
+DNS = {{dnsServerIp}}
+
+[Peer]
+PublicKey = {{serverPublicKey}}
+AllowedIPs = 0.0.0.0/0
+Endpoint = {{endpoint}}
+PersistentKeepalive = {{keepalive}}"#;
 
 #[derive(Debug, Queryable, Associations, Identifiable)]
 #[table_name = "clients"]
@@ -48,6 +64,46 @@ impl From<QueryableClient> for Client {
 
 #[ComplexObject]
 impl Client {
+    async fn config(&self, ctx: &Context<'_>) -> Option<String> {
+        let mut handlebars = Handlebars::new();
+        handlebars
+            .register_template_string("t1", CLIENT_CONFIG)
+            .unwrap();
+        let mut data = BTreeMap::new();
+
+        let server = self.server(ctx).await.expect("Error while fetching server data");
+        let vpn_network = self.vpn_network(ctx).await.ok()?;
+        // Query server that should be used by the client
+        match server {
+            Some(server) => {
+                // Get keypair of server
+                let server_keypair = server.keypair(ctx).await.expect("Error while getting keypair of server");
+                data.insert("serverPublicKey", server_keypair.public_key);
+
+                // Endpoint
+                data.insert("endpoint", format!("{}:{}", server.external_ip_address, vpn_network.listen_port));
+            },
+            None => return None
+        }
+        // Get keypair of client
+        let keypair = self.keypair(ctx).await.ok()?;
+        data.insert("clientPrivateKey", keypair.private_key);
+        // Get the dns server
+        let dns_server = self.dns_server(ctx).await.ok()?;
+        data.insert("dnsServerIp", dns_server.ip_address);
+        // Get the clients ip address
+        let vpn_ip = self.ip_address(ctx).await.ok()?;
+        data.insert("clientIp", format!("{}/{}", vpn_ip, vpn_network.subnetmask));
+        // Keepalive Interval
+        data.insert("keepalive", self.keepalive_interval.to_string());
+
+        Some(
+            handlebars
+                .render("t1", &data)
+                .expect("Error while generating the client configuration"),
+        )
+    }
+
     // TODO: The custom resolvers should use a `DataLoader` to reduce the amount of queries to the database
     /// The keypair that is used by the client
     async fn keypair(&self, ctx: &Context<'_>) -> Result<Keypair> {
@@ -89,6 +145,31 @@ impl Client {
 
         get_vpn_network_by_id(&connection, ip_address.vpn_network_id)
             .ok_or(Error::new("Could not find VPN network of client"))
+    }
+
+    /// The ip address of the client in the vpn network
+    async fn ip_address(&self, ctx: &Context<'_>) -> Result<String> {
+        let connection = create_connection(ctx);
+        let client = get_client_by_id(&connection, self.id)?;
+        Ok(get_ip_address_by_id(&connection, client.vpn_ip_address_id).ip_address)
+    }
+
+    async fn server(&self, ctx: &Context<'_>) -> Option<Server> {
+        use crate::schema::servers::dsl::*;
+        let connection = create_connection(ctx);
+        let vpn_network = self
+            .vpn_network(ctx)
+            .await
+            .ok()
+            .expect("Did not find vpn network of client");
+        let result: Result<(QueryableServer, VpnIpAddress), _> = servers
+            .filter(vpn_ip_addresses::vpn_network_id.eq(vpn_network.id))
+            .inner_join(vpn_ip_addresses::table)
+            .first(&connection);
+
+        result
+            .ok()
+            .map(|(server, _)| Server::from(server))
     }
 }
 
