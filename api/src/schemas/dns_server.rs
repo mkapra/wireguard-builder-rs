@@ -51,7 +51,7 @@ pub struct InputDnsServer {
 ///
 /// * Duplicate `name`
 /// * Duplicate `ip_address`
-pub fn create_dns_server<'a>(
+pub fn create_dns_server(
     connection: &SingleConnection,
     dns_server: &InputDnsServer,
 ) -> Result<DnsServer> {
@@ -64,7 +64,7 @@ pub fn create_dns_server<'a>(
     diesel::insert_into(dns_servers::table)
         .values(&new_dns_server)
         .get_result(connection)
-        .map_err(|e| Error::from(e))
+        .map_err(Error::from)
 }
 
 /// Updates a dns server in the database
@@ -77,7 +77,7 @@ pub fn create_dns_server<'a>(
 /// # Returns
 /// The update may return an error if the new values violate uniqe constraints in the database. Otherwise the updated
 /// dns server is returned.
-pub fn update_dns_server<'a>(
+pub fn update_dns_server(
     connection: &SingleConnection,
     server_id: i32,
     dns_server: &InputDnsServer,
@@ -93,7 +93,7 @@ pub fn update_dns_server<'a>(
         return diesel::update(&server)
             .set(&updated_server)
             .get_result(connection)
-            .map_err(|e| Error::from(e));
+            .map_err(Error::from);
     }
 
     return Err(Error::new(format!(
@@ -115,9 +115,9 @@ pub fn delete_dns_server(connection: &SingleConnection, server_id: i32) -> Resul
     match get_dns_server_by_id(connection, server_id) {
         Some(server) => {
             if let Err(e) = diesel::delete(&server).execute(connection) {
-                return Err(Error::from(e));
+                Err(Error::from(e))
             } else {
-                return Ok(());
+                Ok(())
             }
         }
         None => Err(Error::new(format!(
