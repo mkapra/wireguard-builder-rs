@@ -11,9 +11,12 @@ mod dns_server;
 use dns_server::{
     create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
 };
+mod vpn_network;
+use vpn_network::{
+    create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
+};
 
 use crate::diesel::prelude::*;
-use crate::schema::dns_servers::dsl::*;
 use crate::schema::keypairs::dsl::*;
 
 /// Represents the schema that is created by [`create_schema()`]
@@ -48,8 +51,17 @@ impl QueryRoot {
 
     /// Returns all the dns servers from the database
     async fn dns_servers<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<DnsServer> {
+        use crate::schema::dns_servers::dsl::*;
         dns_servers
             .load::<DnsServer>(&create_connection(ctx))
+            .unwrap()
+    }
+
+    /// Returns all the vpn networks from the database
+    async fn vpn_networks<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<VpnNetwork> {
+        use crate::schema::vpn_networks::dsl::*;
+        vpn_networks
+            .load::<VpnNetwork>(&create_connection(ctx))
             .unwrap()
     }
 }
@@ -91,6 +103,30 @@ impl Mutation {
         #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
     ) -> Result<bool> {
         delete_dns_server(&create_connection(ctx), server_id).map(|_| true)
+    }
+
+    /// Creates a vpn network
+    async fn create_vpn_network<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        vpn_network: InputVpnNetwork,
+    ) -> Result<VpnNetwork> {
+        create_vpn_network(&create_connection(ctx), &vpn_network)
+    }
+
+    /// Updates an existing vpn network
+    async fn update_vpn_network<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        net_id: i32,
+        vpn_network: InputVpnNetwork,
+    ) -> Result<VpnNetwork> {
+        update_vpn_network(&create_connection(ctx), net_id, &vpn_network)
+    }
+
+    /// Deletes a vpn network
+    async fn delete_vpn_network<'ctx>(&self, ctx: &Context<'ctx>, network_id: i32) -> Result<bool> {
+        delete_vpn_network(&create_connection(ctx), network_id)
     }
 }
 
