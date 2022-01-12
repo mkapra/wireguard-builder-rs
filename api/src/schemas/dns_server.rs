@@ -9,13 +9,13 @@ use crate::schemas::SingleConnection;
 #[derive(SimpleObject, Queryable, Identifiable, AsChangeset, Debug)]
 pub struct DnsServer {
     /// The id of the dns server
-    id: i32,
+    pub id: i32,
     /// A unique name of the dns server
-    name: String,
+    pub name: String,
     /// A optional description of the dns server
-    description: Option<String>,
+    pub description: Option<String>,
     /// The ip address of the dns server
-    ip_address: String,
+    pub ip_address: String,
 }
 
 #[derive(Insertable)]

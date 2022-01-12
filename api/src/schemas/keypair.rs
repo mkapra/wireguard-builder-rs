@@ -12,11 +12,11 @@ use crate::schemas::SingleConnection;
 #[derive(SimpleObject, Queryable, Debug)]
 pub struct Keypair {
     /// The id of the keypair
-    id: i32,
+    pub id: i32,
     /// The public key of the keypair
-    public_key: String,
+    pub public_key: String,
     /// The private key of the keypair
-    private_key: String,
+    pub private_key: String,
 }
 
 #[derive(Insertable)]
