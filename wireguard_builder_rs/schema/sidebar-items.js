@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["clients",""],["dns_servers",""],["keypairs",""],["servers",""],["vpn_ip_addressses",""],["vpn_networks",""]]});
+initSidebarItems({"mod":[["clients",""],["dns_servers",""],["keypairs",""],["servers",""],["vpn_ip_addresses",""],["vpn_networks",""]]});

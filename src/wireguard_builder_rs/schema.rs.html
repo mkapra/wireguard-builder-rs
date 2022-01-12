@@ -116,7 +116,7 @@
 }
 
 <span class="macro">table!</span> {
-    <span class="ident">vpn_ip_addressses</span> (<span class="ident">id</span>) {
+    <span class="ident">vpn_ip_addresses</span> (<span class="ident">id</span>) {
         <span class="ident">id</span> -&gt; <span class="ident">Int4</span>,
         <span class="ident">vpn_network_id</span> -&gt; <span class="ident">Int4</span>,
         <span class="ident">ip_address</span> -&gt; <span class="ident">Text</span>,
@@ -137,17 +137,17 @@
 
 <span class="macro">joinable!</span>(<span class="ident">clients</span> -&gt; <span class="ident">dns_servers</span> (<span class="ident">dns_server_id</span>));
 <span class="macro">joinable!</span>(<span class="ident">clients</span> -&gt; <span class="ident">keypairs</span> (<span class="ident">keypair_id</span>));
-<span class="macro">joinable!</span>(<span class="ident">clients</span> -&gt; <span class="ident">vpn_ip_addressses</span> (<span class="ident">vpn_ip_address_id</span>));
+<span class="macro">joinable!</span>(<span class="ident">clients</span> -&gt; <span class="ident">vpn_ip_addresses</span> (<span class="ident">vpn_ip_address_id</span>));
 <span class="macro">joinable!</span>(<span class="ident">servers</span> -&gt; <span class="ident">keypairs</span> (<span class="ident">keypair_id</span>));
-<span class="macro">joinable!</span>(<span class="ident">servers</span> -&gt; <span class="ident">vpn_ip_addressses</span> (<span class="ident">vpn_ip_address_id</span>));
-<span class="macro">joinable!</span>(<span class="ident">vpn_ip_addressses</span> -&gt; <span class="ident">vpn_networks</span> (<span class="ident">vpn_network_id</span>));
+<span class="macro">joinable!</span>(<span class="ident">servers</span> -&gt; <span class="ident">vpn_ip_addresses</span> (<span class="ident">vpn_ip_address_id</span>));
+<span class="macro">joinable!</span>(<span class="ident">vpn_ip_addresses</span> -&gt; <span class="ident">vpn_networks</span> (<span class="ident">vpn_network_id</span>));
 
 <span class="macro">allow_tables_to_appear_in_same_query!</span>(
     <span class="ident">clients</span>,
     <span class="ident">dns_servers</span>,
     <span class="ident">keypairs</span>,
     <span class="ident">servers</span>,
-    <span class="ident">vpn_ip_addressses</span>,
+    <span class="ident">vpn_ip_addresses</span>,
     <span class="ident">vpn_networks</span>,
 );
 </code></pre></div>
