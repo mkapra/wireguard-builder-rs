@@ -159,7 +159,6 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::diesel::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::keypairs::dsl</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Represents the schema that is created by [`create_schema()`]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GrahpQLSchema</span> <span class="op">=</span> <span class="ident">Schema</span><span class="op">&lt;</span><span class="ident">QueryRoot</span>, <span class="ident">Mutation</span>, <span class="ident">EmptySubscription</span><span class="op">&gt;</span>;
@@ -187,12 +186,13 @@
 <span class="attribute">#[<span class="ident">Object</span>]</span>
 <span class="kw">impl</span> <span class="ident">QueryRoot</span> {
     <span class="doccomment">/// Returns all the keypairs from the database</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">keypairs</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Keypair</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">keypairs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Keypair</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::keypairs::dsl</span>::<span class="kw-2">*</span>;
         <span class="ident">keypairs</span>.<span class="ident">load</span>::<span class="op">&lt;</span><span class="ident">Keypair</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">create_connection</span>(<span class="ident">ctx</span>)).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Returns all the dns servers from the database</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">dns_servers</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DnsServer</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">dns_servers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DnsServer</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::dns_servers::dsl</span>::<span class="kw-2">*</span>;
         <span class="ident">dns_servers</span>
             .<span class="ident">load</span>::<span class="op">&lt;</span><span class="ident">DnsServer</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">create_connection</span>(<span class="ident">ctx</span>))
@@ -214,24 +214,24 @@
 <span class="attribute">#[<span class="ident">Object</span>]</span>
 <span class="kw">impl</span> <span class="ident">Mutation</span> {
     <span class="doccomment">/// Generates a keypair</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_keypair</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>) -&gt; <span class="ident">Keypair</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_keypair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Keypair</span> {
         <span class="kw">let</span> (<span class="ident">priv_key</span>, <span class="ident">pub_key</span>) <span class="op">=</span> <span class="ident">Keypair::generate_keypair</span>();
         <span class="ident">create_keypair</span>(<span class="kw-2">&amp;</span><span class="ident">create_connection</span>(<span class="ident">ctx</span>), <span class="kw-2">&amp;</span><span class="ident">pub_key</span>, <span class="kw-2">&amp;</span><span class="ident">priv_key</span>)
     }
 
     <span class="doccomment">/// Creates a new dns server</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_dns_server</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_dns_server</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">dns_server</span>: <span class="ident">InputDnsServer</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DnsServer</span><span class="op">&gt;</span> {
         <span class="ident">create_dns_server</span>(<span class="kw-2">&amp;</span><span class="ident">create_connection</span>(<span class="ident">ctx</span>), <span class="kw-2">&amp;</span><span class="ident">dns_server</span>)
     }
 
     <span class="doccomment">/// Updates an existing dns server</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_dns_server</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_dns_server</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">server_id</span>: <span class="ident">i32</span>,
         <span class="ident">dns_server</span>: <span class="ident">InputDnsServer</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DnsServer</span><span class="op">&gt;</span> {
@@ -239,9 +239,9 @@
     }
 
     <span class="doccomment">/// Deletes a dns server</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_dns_server</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_dns_server</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="attribute">#[<span class="ident">graphql</span>(<span class="ident">desc</span> <span class="op">=</span> <span class="string">&quot;The id of the server that should be deleted&quot;</span>)]</span> <span class="ident">server_id</span>: <span class="ident">i32</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="ident">delete_dns_server</span>(<span class="kw-2">&amp;</span><span class="ident">create_connection</span>(<span class="ident">ctx</span>), <span class="ident">server_id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>)
@@ -276,7 +276,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Arguments</span>
 <span class="doccomment">/// * `ctx` - The context of the graphql request that includes the database connection pool</span>
-<span class="kw">fn</span> <span class="ident">create_connection</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;ctx</span><span class="op">&gt;</span>) -&gt; <span class="ident">SingleConnection</span> {
+<span class="kw">fn</span> <span class="ident">create_connection</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">SingleConnection</span> {
     <span class="ident">ctx</span>.<span class="ident">data</span>::<span class="op">&lt;</span><span class="ident">DatabaseConnection</span><span class="op">&gt;</span>()
         .<span class="ident">expect</span>(<span class="string">&quot;Could not retrieve connection from context&quot;</span>)
         .<span class="ident">get</span>()
