@@ -40,7 +40,7 @@ table! {
 }
 
 table! {
-    vpn_ip_addressses (id) {
+    vpn_ip_addresses (id) {
         id -> Int4,
         vpn_network_id -> Int4,
         ip_address -> Text,
@@ -61,16 +61,16 @@ table! {
 
 joinable!(clients -> dns_servers (dns_server_id));
 joinable!(clients -> keypairs (keypair_id));
-joinable!(clients -> vpn_ip_addressses (vpn_ip_address_id));
+joinable!(clients -> vpn_ip_addresses (vpn_ip_address_id));
 joinable!(servers -> keypairs (keypair_id));
-joinable!(servers -> vpn_ip_addressses (vpn_ip_address_id));
-joinable!(vpn_ip_addressses -> vpn_networks (vpn_network_id));
+joinable!(servers -> vpn_ip_addresses (vpn_ip_address_id));
+joinable!(vpn_ip_addresses -> vpn_networks (vpn_network_id));
 
 allow_tables_to_appear_in_same_query!(
     clients,
     dns_servers,
     keypairs,
     servers,
-    vpn_ip_addressses,
+    vpn_ip_addresses,
     vpn_networks,
 );

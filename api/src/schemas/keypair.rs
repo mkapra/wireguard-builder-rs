@@ -93,3 +93,20 @@ impl Keypair {
         (priv_key, pub_key)
     }
 }
+
+/// Returns the keypair for the given id
+///
+/// # Arguments
+/// * `connection` - A connection to the database
+/// * `net_id` - The id of the keypair that should be returned
+///
+/// # Panics
+/// If the keypair was not found in the database
+pub fn get_keypair_by_id(connection: &SingleConnection, keypair_id: i32) -> Result<Keypair> {
+    use crate::schema::keypairs::dsl::*;
+
+    keypairs
+        .filter(id.eq(keypair_id))
+        .first(connection)
+        .map_err(|e| Error::new(format!("Could not query keypair with id {} ({})", keypair_id, e)))
+}

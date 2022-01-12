@@ -5,6 +5,8 @@ use diesel::{
     PgConnection,
 };
 
+use crate::diesel::prelude::*;
+
 mod keypair;
 use keypair::{create_keypair, Keypair};
 mod dns_server;
@@ -15,8 +17,9 @@ mod vpn_network;
 use vpn_network::{
     create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
 };
-
-use crate::diesel::prelude::*;
+mod client;
+use client::{QueryableClient, Client, InputClient, create_client, delete_client};
+mod vpn_ip_address;
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -63,6 +66,17 @@ impl QueryRoot {
         vpn_networks
             .load::<VpnNetwork>(&create_connection(ctx))
             .unwrap()
+    }
+
+    /// Returns all the clients from the database
+    async fn clients(&self, ctx: &Context<'_>) -> Vec<Client> {
+        use crate::schema::clients::dsl::*;
+        clients
+            .load::<QueryableClient>(&create_connection(ctx))
+            .unwrap()
+            .into_iter()
+            .map(Client::from)
+            .collect()
     }
 }
 
@@ -127,6 +141,16 @@ impl Mutation {
     /// Deletes a vpn network
     async fn delete_vpn_network(&self, ctx: &Context<'_>, network_id: i32) -> Result<bool> {
         delete_vpn_network(&create_connection(ctx), network_id)
+    }
+
+    /// Creates a client
+    async fn create_client(&self, ctx: &Context<'_>, client: InputClient) -> Result<Client> {
+        create_client(&create_connection(ctx), &client).map(Client::from)
+    }
+
+    /// Deletes a client
+    async fn delete_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<bool> {
+        delete_client(&create_connection(ctx), client_id)
     }
 }
 
