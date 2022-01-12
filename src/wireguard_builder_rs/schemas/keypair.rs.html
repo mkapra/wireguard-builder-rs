@@ -129,11 +129,11 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">SimpleObject</span>, <span class="ident">Queryable</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Keypair</span> {
     <span class="doccomment">/// The id of the keypair</span>
-    <span class="ident">id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i32</span>,
     <span class="doccomment">/// The public key of the keypair</span>
-    <span class="ident">public_key</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">public_key</span>: <span class="ident">String</span>,
     <span class="doccomment">/// The private key of the keypair</span>
-    <span class="ident">private_key</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">private_key</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Insertable</span>)]</span>
