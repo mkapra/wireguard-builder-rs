@@ -71,19 +71,28 @@ impl Client {
             .unwrap();
         let mut data = BTreeMap::new();
 
-        let server = self.server(ctx).await.expect("Error while fetching server data");
+        let server = self
+            .server(ctx)
+            .await
+            .expect("Error while fetching server data");
         let vpn_network = self.vpn_network(ctx).await.ok()?;
         // Query server that should be used by the client
         match server {
             Some(server) => {
                 // Get keypair of server
-                let server_keypair = server.keypair(ctx).await.expect("Error while getting keypair of server");
+                let server_keypair = server
+                    .keypair(ctx)
+                    .await
+                    .expect("Error while getting keypair of server");
                 data.insert("serverPublicKey", server_keypair.public_key);
 
                 // Endpoint
-                data.insert("endpoint", format!("{}:{}", server.external_ip_address, vpn_network.listen_port));
-            },
-            None => return None
+                data.insert(
+                    "endpoint",
+                    format!("{}:{}", server.external_ip_address, vpn_network.listen_port),
+                );
+            }
+            None => return None,
         }
         // Get keypair of client
         let keypair = self.keypair(ctx).await.ok()?;
@@ -167,9 +176,7 @@ impl Client {
             .inner_join(vpn_ip_addresses::table)
             .first(&connection);
 
-        result
-            .ok()
-            .map(|(server, _)| Server::from(server))
+        result.ok().map(|(server, _)| Server::from(server))
     }
 }
 
