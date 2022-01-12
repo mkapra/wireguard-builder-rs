@@ -19,7 +19,9 @@ use vpn_network::{
 };
 mod client;
 use client::{create_client, delete_client, Client, InputClient, QueryableClient};
+mod server;
 mod vpn_ip_address;
+use server::{create_server, delete_server, InputServer, QueryableServer, Server};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -76,6 +78,17 @@ impl QueryRoot {
             .unwrap()
             .into_iter()
             .map(Client::from)
+            .collect()
+    }
+
+    /// Returns all the servers from the database
+    async fn servers(&self, ctx: &Context<'_>) -> Vec<Server> {
+        use crate::schema::servers::dsl::*;
+        servers
+            .load::<QueryableServer>(&create_connection(ctx))
+            .unwrap()
+            .into_iter()
+            .map(Server::from)
             .collect()
     }
 }
@@ -151,6 +164,16 @@ impl Mutation {
     /// Deletes a client
     async fn delete_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<bool> {
         delete_client(&create_connection(ctx), client_id)
+    }
+
+    /// Creates a server
+    async fn create_server(&self, ctx: &Context<'_>, server: InputServer) -> Result<Server> {
+        create_server(&create_connection(ctx), &server).map(Server::from)
+    }
+
+    /// Deletes a server
+    async fn delete_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<bool> {
+        delete_server(&create_connection(ctx), server_id)
     }
 }
 
