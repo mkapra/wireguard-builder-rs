@@ -108,5 +108,10 @@ pub fn get_keypair_by_id(connection: &SingleConnection, keypair_id: i32) -> Resu
     keypairs
         .filter(id.eq(keypair_id))
         .first(connection)
-        .map_err(|e| Error::new(format!("Could not query keypair with id {} ({})", keypair_id, e)))
+        .map_err(|e| {
+            Error::new(format!(
+                "Could not query keypair with id {} ({})",
+                keypair_id, e
+            ))
+        })
 }

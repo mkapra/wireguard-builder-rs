@@ -177,17 +177,15 @@ pub fn create_client(
         }
     }
 
-    let vpn_ip_obj = create_new_vpn_ip_address(
-        connection,
-        client.vpn_network_id,
-        &client.ip_address,
-    )
-    .map_err(|e| {
-        Error::new(format!(
+    let vpn_ip_obj =
+        create_new_vpn_ip_address(connection, client.vpn_network_id, &client.ip_address).map_err(
+            |e| {
+                Error::new(format!(
             "Could not create client. Maybe this IP address is already taken? (Error: {:?})",
             e
         ))
-    })?;
+            },
+        )?;
 
     let new_client = InsertableClient {
         name: client.name.clone(),
@@ -206,7 +204,10 @@ pub fn create_client(
 
 pub fn delete_client(connection: &SingleConnection, client_id: i32) -> Result<bool> {
     let client = get_client_by_id(connection, client_id)?;
-    diesel::delete(&client).execute(connection).map(|_| true).map_err(Error::from)
+    diesel::delete(&client)
+        .execute(connection)
+        .map(|_| true)
+        .map_err(Error::from)
 }
 
 /// Returns the client for the given id
@@ -222,5 +223,10 @@ fn get_client_by_id(connection: &SingleConnection, client_id: i32) -> Result<Que
     clients
         .filter(id.eq(client_id))
         .first::<QueryableClient>(connection)
-        .map_err(|e| Error::new(format!("Could not find client with id {} ({:?})", client_id, e)))
+        .map_err(|e| {
+            Error::new(format!(
+                "Could not find client with id {} ({:?})",
+                client_id, e
+            ))
+        })
 }

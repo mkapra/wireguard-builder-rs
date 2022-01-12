@@ -17,7 +17,11 @@ pub struct NewVpnIpAddress<'a> {
     pub ip_address: &'a str,
 }
 
-pub fn create_new_vpn_ip_address<'a>(connection: &SingleConnection, vpn_network_id: i32, ip_address: &'a str) -> Result<VpnIpAddress> {
+pub fn create_new_vpn_ip_address<'a>(
+    connection: &SingleConnection,
+    vpn_network_id: i32,
+    ip_address: &'a str,
+) -> Result<VpnIpAddress> {
     let new_ip = NewVpnIpAddress {
         vpn_network_id,
         ip_address,

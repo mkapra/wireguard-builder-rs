@@ -18,7 +18,7 @@ use vpn_network::{
     create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
 };
 mod client;
-use client::{QueryableClient, Client, InputClient, create_client, delete_client};
+use client::{create_client, delete_client, Client, InputClient, QueryableClient};
 mod vpn_ip_address;
 
 /// Represents the schema that is created by [`create_schema()`]
