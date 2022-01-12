@@ -74,9 +74,7 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
-<span id="77">77</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Diesel schema of the database</span>
-<span class="macro">table!</span> {
+</pre><pre class="rust"><code><span class="macro">table!</span> {
     <span class="ident">clients</span> (<span class="ident">id</span>) {
         <span class="ident">id</span> -&gt; <span class="ident">Int4</span>,
         <span class="ident">name</span> -&gt; <span class="ident">Text</span>,
@@ -133,7 +131,7 @@
         <span class="ident">ip_network</span> -&gt; <span class="ident">Text</span>,
         <span class="ident">subnetmask</span> -&gt; <span class="ident">Int4</span>,
         <span class="ident">listen_port</span> -&gt; <span class="ident">Int4</span>,
-        <span class="ident">interface_name</span> -&gt; <span class="ident">Int4</span>,
+        <span class="ident">interface_name</span> -&gt; <span class="ident">Text</span>,
     }
 }
 
