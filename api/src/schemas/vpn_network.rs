@@ -8,19 +8,19 @@ use crate::schemas::SingleConnection;
 #[derive(SimpleObject, Queryable, Identifiable, AsChangeset, Debug)]
 pub struct VpnNetwork {
     /// The id
-    id: i32,
+    pub id: i32,
     /// A unique name
-    name: String,
+    pub name: String,
     /// An optional description
-    description: Option<String>,
+    pub description: Option<String>,
     /// The ip_network that the object represents
-    ip_network: String,
+    pub ip_network: String,
     /// The subnetmask of the ip_network in CIDR format
-    subnetmask: i32,
+    pub subnetmask: i32,
     /// The port where the vpn server is listening on
-    listen_port: i32,
+    pub listen_port: i32,
     /// The name of the interface (e.g. wg0)
-    interface_name: String,
+    pub interface_name: String,
 }
 
 #[derive(Insertable)]
@@ -145,7 +145,7 @@ pub fn delete_vpn_network(connection: &SingleConnection, net_id: i32) -> Result<
 ///
 /// # Returns
 /// If a vpn network was found a [`Option::Some`] will be returned [`Option::None`] otherwise
-fn get_vpn_network_by_id(connection: &SingleConnection, net_id: i32) -> Option<VpnNetwork> {
+pub fn get_vpn_network_by_id(connection: &SingleConnection, net_id: i32) -> Option<VpnNetwork> {
     use crate::schema::vpn_networks::dsl::*;
 
     vpn_networks

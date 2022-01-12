@@ -9,3 +9,4 @@ async-graphql-rocket = "3.0"
 rocket = "0.5.0-rc.1"
 diesel = { version = "1.4", features = ["postgres", "r2d2"] }
 dotenv = "0.15.0"
+ipaddress = "0.1"

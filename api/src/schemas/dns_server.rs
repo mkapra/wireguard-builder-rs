@@ -135,7 +135,7 @@ pub fn delete_dns_server(connection: &SingleConnection, server_id: i32) -> Resul
 ///
 /// # Returns
 /// The server if found or [`Option::None`]
-fn get_dns_server_by_id(connection: &SingleConnection, server_id: i32) -> Option<DnsServer> {
+pub fn get_dns_server_by_id(connection: &SingleConnection, server_id: i32) -> Option<DnsServer> {
     use crate::schema::dns_servers::dsl::*;
 
     let mut servers = dns_servers

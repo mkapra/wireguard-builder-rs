@@ -7,6 +7,7 @@ use std::env;
 
 mod schemas;
 use schemas::{create_schema, DatabaseConnection, GrahpQLSchema};
+mod validate;
 
 #[macro_use]
 extern crate diesel;
