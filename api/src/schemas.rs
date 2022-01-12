@@ -106,18 +106,18 @@ impl Mutation {
     }
 
     /// Creates a vpn network
-    async fn create_vpn_network<'ctx>(
+    async fn create_vpn_network(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
         create_vpn_network(&create_connection(ctx), &vpn_network)
     }
 
     /// Updates an existing vpn network
-    async fn update_vpn_network<'ctx>(
+    async fn update_vpn_network(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         net_id: i32,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
@@ -125,7 +125,7 @@ impl Mutation {
     }
 
     /// Deletes a vpn network
-    async fn delete_vpn_network<'ctx>(&self, ctx: &Context<'ctx>, network_id: i32) -> Result<bool> {
+    async fn delete_vpn_network(&self, ctx: &Context<'_>, network_id: i32) -> Result<bool> {
         delete_vpn_network(&create_connection(ctx), network_id)
     }
 }

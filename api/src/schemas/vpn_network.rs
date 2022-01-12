@@ -76,7 +76,7 @@ pub fn create_vpn_network(
     diesel::insert_into(vpn_networks::table)
         .values(&new_vpn_network)
         .get_result(connection)
-        .map_err(|e| Error::from(e))
+        .map_err(Error::from)
 }
 
 /// Updates a vpn network in the database
@@ -107,7 +107,7 @@ pub fn update_vpn_network(
         return diesel::update(&net)
             .set(&updated_net)
             .get_result(connection)
-            .map_err(|e| Error::from(e));
+            .map_err(Error::from);
     }
 
     Err(Error::new(format!(
@@ -127,8 +127,8 @@ pub fn update_vpn_network(
 pub fn delete_vpn_network(connection: &SingleConnection, net_id: i32) -> Result<bool> {
     match get_vpn_network_by_id(connection, net_id) {
         Some(net) => match diesel::delete(&net).execute(connection) {
-            Ok(_) => return Ok(true),
-            Err(e) => return Err(Error::from(e)),
+            Ok(_) => Ok(true),
+            Err(e) => Err(Error::from(e)),
         },
         None => Err(Error::new(format!(
             "VPN Network with id {} not found",
