@@ -3,7 +3,6 @@ use std::collections::BTreeMap;
 
 use handlebars::Handlebars;
 
-use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id};
 use super::*;
 use crate::schema::clients;
 use crate::schema::vpn_ip_addresses;
@@ -184,7 +183,7 @@ impl Client {
     async fn vpn_network(&self, ctx: &Context<'_>) -> Result<VpnNetwork> {
         let connection = create_connection(ctx);
         let client = Self::get_by_id(&connection, self.id)?;
-        let ip_address = get_ip_address_by_id(&connection, client.vpn_ip_address_id);
+        let ip_address = VpnIpAddress::get_by_id(&connection, client.vpn_ip_address_id);
 
         VpnNetwork::get_by_id(&connection, ip_address.vpn_network_id)
             .ok_or_else(|| Error::new("Could not find VPN network of client"))
@@ -194,7 +193,7 @@ impl Client {
     async fn ip_address(&self, ctx: &Context<'_>) -> Result<String> {
         let connection = create_connection(ctx);
         let client = Self::get_by_id(&connection, self.id)?;
-        Ok(get_ip_address_by_id(&connection, client.vpn_ip_address_id).ip_address)
+        Ok(VpnIpAddress::get_by_id(&connection, client.vpn_ip_address_id).ip_address)
     }
 
     async fn server(&self, ctx: &Context<'_>) -> Option<Server> {
@@ -281,7 +280,7 @@ impl Client {
         }
 
         let vpn_ip_obj =
-            create_new_vpn_ip_address(connection, client.vpn_network_id, &client.ip_address).map_err(
+            VpnIpAddress::create(connection, client.vpn_network_id, &client.ip_address).map_err(
                 |e| {
                     Error::new(format!(
                 "Could not create client. Maybe this IP address is already taken? (Error: {:?})",

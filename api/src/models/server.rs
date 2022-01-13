@@ -1,8 +1,8 @@
 //! Module that holds everything that is necessary for the `Server`
 use handlebars::Handlebars;
 
-use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id, VpnIpAddress};
 use super::*;
+use super::vpn_ip_address::VpnIpAddress;
 use crate::schema::servers;
 use crate::schema::vpn_ip_addresses;
 use crate::validate::is_ip_in_network;
@@ -143,7 +143,7 @@ impl Server {
     async fn vpn_network(&self, ctx: &Context<'_>) -> Result<VpnNetwork> {
         let connection = create_connection(ctx);
         let client = get_server_by_id(&connection, self.id)?;
-        let ip_address = get_ip_address_by_id(&connection, client.vpn_ip_address_id);
+        let ip_address = VpnIpAddress::get_by_id(&connection, client.vpn_ip_address_id);
 
         VpnNetwork::get_by_id(&connection, ip_address.vpn_network_id)
             .ok_or(Error::new("Could not find VPN network of client"))
@@ -153,7 +153,7 @@ impl Server {
     async fn ip_address(&self, ctx: &Context<'_>) -> Result<String> {
         let connection = create_connection(ctx);
         let server = get_server_by_id(&connection, self.id)?;
-        Ok(get_ip_address_by_id(&connection, server.vpn_ip_address_id).ip_address)
+        Ok(VpnIpAddress::get_by_id(&connection, server.vpn_ip_address_id).ip_address)
     }
 }
 
@@ -234,7 +234,7 @@ pub fn create_server(
     }
 
     let vpn_ip_obj =
-        create_new_vpn_ip_address(connection, server.vpn_network_id, &server.ip_address).map_err(
+        VpnIpAddress::create(connection, server.vpn_network_id, &server.ip_address).map_err(
             |e| {
                 Error::new(format!(
             "Could not create server. Maybe this IP address is already taken? (Error: {:?})",
@@ -305,7 +305,7 @@ fn get_clients_for_server(
                 .map(|(c, _): (QueryableClient, VpnIpAddress)| {
                     let keypair =
                         Keypair::get_by_id(connection, c.keypair_id).expect("Client has no keypair");
-                    let vpn_ip = get_ip_address_by_id(connection, c.vpn_ip_address_id);
+                    let vpn_ip = VpnIpAddress::get_by_id(connection, c.vpn_ip_address_id);
                     ClientServerConfig {
                         name: c.name,
                         public_key: keypair.public_key,
