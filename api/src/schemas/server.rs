@@ -1,11 +1,33 @@
 //! Module that holds everything that is necessary for the `Server`
-use super::*;
+use handlebars::Handlebars;
 
 use super::keypair::get_keypair_by_id;
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id, VpnIpAddress};
 use super::vpn_network::get_vpn_network_by_id;
+use super::*;
 use crate::schema::servers;
+use crate::schema::vpn_ip_addresses;
 use crate::validate::is_ip_in_network;
+
+const SERVER_CONFIG: &str = r#"# Server configuration
+[Interface]
+Address = {{server_address}}
+ListenPort = {{listen_port}}
+PrivateKey = {{server_private_key}}
+
+# Clients
+{{#each clients}}
+## {{name}}
+[Peer]
+PublicKey = {{public_key}}
+AllowedIps = {{ip_address}}/32
+{{/each}}
+"#;
+
+// fn format_helper(h: &Helper, _: &Handlebars, _: &Context, rc: &mut RenderContext, out: &mut dyn Output) -> Result<(), RenderError> {
+//     rc.
+//     Ok(())
+// }
 
 #[derive(Debug, Queryable, Associations, Identifiable)]
 #[table_name = "servers"]
@@ -48,8 +70,62 @@ impl From<QueryableServer> for Server {
     }
 }
 
+#[derive(serde::Serialize)]
+struct ServerConfig {
+    server_address: String,
+    listen_port: i32,
+    server_private_key: String,
+    clients: Vec<ClientServerConfig>,
+}
+
+#[derive(serde::Serialize)]
+struct ClientServerConfig {
+    name: String,
+    public_key: String,
+    ip_address: String,
+}
+
 #[ComplexObject]
 impl Server {
+    pub async fn config(&self, ctx: &Context<'_>) -> Option<String> {
+        let connection = create_connection(ctx);
+        let mut handlebars = Handlebars::new();
+        handlebars.register_escape_fn(|c| c.to_string());
+        handlebars.set_strict_mode(true);
+        handlebars
+            .register_template_string("t1", SERVER_CONFIG)
+            .unwrap();
+
+        let ip_address = self
+            .ip_address(ctx)
+            .await
+            .expect("Server does not have an ip address");
+        let vpn_network = self
+            .vpn_network(ctx)
+            .await
+            .expect("Server is not part of vpn network");
+        let keypair = self
+            .keypair(ctx)
+            .await
+            .expect("Server does not hava a keypair");
+        let clients = get_clients_for_server(&connection, &vpn_network);
+        if let None = clients {
+            return None;
+        }
+        let data = ServerConfig {
+            server_address: format!("{}/{}", ip_address, vpn_network.subnetmask),
+            listen_port: vpn_network.listen_port,
+            server_private_key: keypair.private_key,
+            clients: clients.unwrap(),
+        };
+
+        Some(
+            handlebars
+                .render("t1", &data)
+                .expect("Error while generating the client configuration"),
+        )
+    }
+
     pub async fn keypair(&self, ctx: &Context<'_>) -> Result<Keypair> {
         use crate::schema::keypairs::dsl::*;
         let connection = create_connection(ctx);
@@ -73,6 +149,13 @@ impl Server {
 
         get_vpn_network_by_id(&connection, ip_address.vpn_network_id)
             .ok_or(Error::new("Could not find VPN network of client"))
+    }
+
+    /// The ip address of the server in the vpn network
+    async fn ip_address(&self, ctx: &Context<'_>) -> Result<String> {
+        let connection = create_connection(ctx);
+        let server = get_server_by_id(&connection, self.id)?;
+        Ok(get_ip_address_by_id(&connection, server.vpn_ip_address_id).ip_address)
     }
 }
 
@@ -204,4 +287,37 @@ fn get_server_by_id(connection: &SingleConnection, server_id: i32) -> Result<Que
                 server_id, e
             ))
         })
+}
+
+/// Returns the clients that are associated with a vpn network
+fn get_clients_for_server(
+    connection: &SingleConnection,
+    vpn_network: &VpnNetwork,
+) -> Option<Vec<ClientServerConfig>> {
+    use crate::schema::clients::dsl::*;
+
+    match clients
+        .filter(vpn_ip_addresses::vpn_network_id.eq(vpn_network.id))
+        .inner_join(vpn_ip_addresses::table)
+        .load(connection)
+    {
+        Ok(results) => {
+            let mapped_clients = results
+                .into_iter()
+                .map(|(c, _): (QueryableClient, VpnIpAddress)| {
+                    let keypair =
+                        get_keypair_by_id(connection, c.keypair_id).expect("Client has no keypair");
+                    let vpn_ip = get_ip_address_by_id(connection, c.vpn_ip_address_id);
+                    ClientServerConfig {
+                        name: c.name,
+                        public_key: keypair.public_key,
+                        ip_address: vpn_ip.ip_address,
+                    }
+                })
+                .collect();
+
+            return Some(mapped_clients);
+        }
+        Err(_) => return None,
+    }
 }

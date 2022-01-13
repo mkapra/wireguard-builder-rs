@@ -2065,6 +2065,7 @@ dependencies = [
  "handlebars",
  "ipaddress",
  "rocket",
+ "serde",
 ]
 
 [[package]]
