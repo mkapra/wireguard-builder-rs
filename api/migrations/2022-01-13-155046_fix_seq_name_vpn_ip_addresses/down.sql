@@ -1,0 +1,1 @@
+ALTER TABLE vpn_ip_addresses_id_seq RENAME TO vpn_ip_addressses_id_seq;
