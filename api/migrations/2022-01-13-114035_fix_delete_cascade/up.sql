@@ -20,4 +20,4 @@ DROP SEQUENCE servers_vpn_ip_address_id_seq;
 
 ALTER TABLE vpn_ip_addresses ALTER COLUMN vpn_network_id DROP DEFAULT;
 ALTER TABLE vpn_ip_addresses ALTER COLUMN vpn_network_id TYPE INT;
-DROP SEQUENCE vpn_ip_addresses_vpn_network_id_seq;
+DROP SEQUENCE vpn_ip_addressses_vpn_network_id_seq;
