@@ -2,7 +2,6 @@
 use handlebars::Handlebars;
 
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id, VpnIpAddress};
-use super::vpn_network::get_vpn_network_by_id;
 use super::*;
 use crate::schema::servers;
 use crate::schema::vpn_ip_addresses;
@@ -146,7 +145,7 @@ impl Server {
         let client = get_server_by_id(&connection, self.id)?;
         let ip_address = get_ip_address_by_id(&connection, client.vpn_ip_address_id);
 
-        get_vpn_network_by_id(&connection, ip_address.vpn_network_id)
+        VpnNetwork::get_by_id(&connection, ip_address.vpn_network_id)
             .ok_or(Error::new("Could not find VPN network of client"))
     }
 
@@ -211,7 +210,7 @@ pub fn create_server(
     }
 
     // Check if vpn network exists
-    match get_vpn_network_by_id(connection, server.vpn_network_id) {
+    match VpnNetwork::get_by_id(connection, server.vpn_network_id) {
         Some(network) => {
             // Check if ip address is in range of vpn network
             // Unwrap here because the ip addresses are already validated

@@ -15,7 +15,7 @@ use dns_server::{
 };
 mod vpn_network;
 use vpn_network::{
-    create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
+    InputVpnNetwork, VpnNetwork,
 };
 mod client;
 use client::{Client, InputClient, QueryableClient};
@@ -138,7 +138,7 @@ impl Mutation {
         ctx: &Context<'_>,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
-        create_vpn_network(&create_connection(ctx), &vpn_network)
+        VpnNetwork::create(&create_connection(ctx), &vpn_network)
     }
 
     /// Updates an existing vpn network
@@ -148,12 +148,12 @@ impl Mutation {
         net_id: i32,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
-        update_vpn_network(&create_connection(ctx), net_id, &vpn_network)
+        VpnNetwork::update(&create_connection(ctx), net_id, &vpn_network)
     }
 
     /// Deletes a vpn network
     async fn delete_vpn_network(&self, ctx: &Context<'_>, network_id: i32) -> Result<bool> {
-        delete_vpn_network(&create_connection(ctx), network_id)
+        VpnNetwork::delete(&create_connection(ctx), network_id)
     }
 
     /// Creates a client
