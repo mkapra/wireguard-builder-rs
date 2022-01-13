@@ -55,8 +55,10 @@ impl QueryRoot {
         use crate::schema::keypairs::dsl::*;
 
         let connection = create_connection(ctx);
-        let mut used_keypairs = Client::get_keypair_ids(&connection).expect("Failed to query keypairs");
-        let keypair_ids_server = Server::get_keypair_ids(&connection).expect("Failed to query keypairs");
+        let mut used_keypairs =
+            Client::get_keypair_ids(&connection).expect("Failed to query keypairs");
+        let keypair_ids_server =
+            Server::get_keypair_ids(&connection).expect("Failed to query keypairs");
         used_keypairs.extend(keypair_ids_server);
 
         keypairs
