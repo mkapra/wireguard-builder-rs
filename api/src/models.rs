@@ -11,7 +11,7 @@ mod keypair;
 use keypair::Keypair;
 mod dns_server;
 use dns_server::{
-    create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
+    DnsServer, InputDnsServer,
 };
 mod vpn_network;
 use vpn_network::{
@@ -110,7 +110,7 @@ impl Mutation {
         ctx: &Context<'_>,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        create_dns_server(&create_connection(ctx), &dns_server)
+        DnsServer::create(&create_connection(ctx), &dns_server)
     }
 
     /// Updates an existing dns server
@@ -120,7 +120,7 @@ impl Mutation {
         server_id: i32,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        update_dns_server(&create_connection(ctx), server_id, &dns_server)
+        DnsServer::update(&create_connection(ctx), server_id, &dns_server)
     }
 
     /// Deletes a dns server
@@ -129,7 +129,7 @@ impl Mutation {
         ctx: &Context<'_>,
         #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
     ) -> Result<bool> {
-        delete_dns_server(&create_connection(ctx), server_id).map(|_| true)
+        DnsServer::delete(&create_connection(ctx), server_id).map(|_| true)
     }
 
     /// Creates a vpn network

@@ -3,7 +3,6 @@ use std::collections::BTreeMap;
 
 use handlebars::Handlebars;
 
-use super::dns_server::get_dns_server_by_id;
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id};
 use super::vpn_network::get_vpn_network_by_id;
 use super::*;
@@ -243,7 +242,7 @@ impl Client {
         client: &InputClient,
     ) -> Result<QueryableClient> {
         // Check if dns server exists
-        if get_dns_server_by_id(connection, client.dns_server_id).is_none() {
+        if DnsServer::get_by_id(connection, client.dns_server_id).is_none() {
             return Err(Error::new(format!(
                 "DNS Server with id {} not found for client",
                 client.dns_server_id
