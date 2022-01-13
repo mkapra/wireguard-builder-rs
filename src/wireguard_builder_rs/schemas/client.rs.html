@@ -318,6 +318,7 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Module that holds everything that is necessary for the `Client`</span>
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -349,13 +350,13 @@ PersistentKeepalive = {{keepalive}}&quot;#</span>;
 <span class="attribute">#[<span class="ident">belongs_to</span>(<span class="ident">DnsServer</span>)]</span>
 <span class="attribute">#[<span class="ident">belongs_to</span>(<span class="ident">Keypair</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QueryableClient</span> {
-    <span class="ident">id</span>: <span class="ident">i32</span>,
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">keepalive_interval</span>: <span class="ident">i32</span>,
-    <span class="ident">dns_server_id</span>: <span class="ident">i32</span>,
-    <span class="ident">keypair_id</span>: <span class="ident">i32</span>,
-    <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">keepalive_interval</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">dns_server_id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">keypair_id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">SimpleObject</span>)]</span>
@@ -386,6 +387,7 @@ PersistentKeepalive = {{keepalive}}&quot;#</span>;
 <span class="kw">impl</span> <span class="ident">Client</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handlebars</span> <span class="op">=</span> <span class="ident">Handlebars::new</span>();
+        <span class="ident">handlebars</span>.<span class="ident">register_escape_fn</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">to_string</span>());
         <span class="ident">handlebars</span>
             .<span class="ident">register_template_string</span>(<span class="string">&quot;t1&quot;</span>, <span class="ident">CLIENT_CONFIG</span>)
             .<span class="ident">unwrap</span>();
