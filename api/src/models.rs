@@ -50,6 +50,21 @@ impl QueryRoot {
         keypairs.load::<Keypair>(&create_connection(ctx)).unwrap()
     }
 
+    /// Returns all unused keypairs
+    async fn unused_keypairs(&self, ctx: &Context<'_>) -> Vec<Keypair> {
+        use crate::schema::keypairs::dsl::*;
+
+        let connection = create_connection(ctx);
+        let mut used_keypairs = Client::get_keypair_ids(&connection).expect("Failed to query keypairs");
+        let keypair_ids_server = Server::get_keypair_ids(&connection).expect("Failed to query keypairs");
+        used_keypairs.extend(keypair_ids_server);
+
+        keypairs
+            .filter(id.ne_all(&used_keypairs))
+            .load::<Keypair>(&connection)
+            .expect("Could not query database")
+    }
+
     /// Returns all the dns servers from the database
     async fn dns_servers(&self, ctx: &Context<'_>) -> Vec<DnsServer> {
         use crate::schema::dns_servers::dsl::*;

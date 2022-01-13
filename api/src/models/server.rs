@@ -274,6 +274,17 @@ impl Server {
             .map_err(Error::from)
     }
 
+    /// Returns all the ids of keypairs that are used by a server
+    pub fn get_keypair_ids(connection: &SingleConnection) -> Result<Vec<i32>> {
+        use crate::schema::servers::dsl::*;
+        Ok(servers
+            .load::<QueryableServer>(connection)
+            .map_err(Error::from)?
+            .into_iter()
+            .map(|s| s.keypair_id)
+            .collect())
+    }
+
     /// Returns the [`Server`] for the given id
     ///
     /// # Arguments
