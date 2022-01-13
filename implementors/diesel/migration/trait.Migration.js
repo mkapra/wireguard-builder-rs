@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["wireguard_builder_rs"] = [{"text":"impl Migration for <a class=\"struct\" href=\"wireguard_builder_rs/embedded_migrations/struct.EmbeddedMigration.html\" title=\"struct wireguard_builder_rs::embedded_migrations::EmbeddedMigration\">EmbeddedMigration</a>","synthetic":false,"types":["wireguard_builder_rs::embedded_migrations::EmbeddedMigration"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

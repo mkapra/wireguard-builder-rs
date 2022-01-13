@@ -279,6 +279,8 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Module that holds everything that is necessary for the `Server`</span>
 <span class="kw">use</span> <span class="ident">handlebars::Handlebars</span>;
 
@@ -533,6 +535,8 @@ AllowedIps = {{ip_address}}/32
     <span class="doccomment">/// Deletes the [`Server`] with the given id from the database</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">server_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::get_by_id</span>(<span class="ident">connection</span>, <span class="ident">server_id</span>)<span class="question-mark">?</span>;
+        <span class="ident">VpnIpAddress::delete</span>(<span class="ident">connection</span>, <span class="ident">server</span>.<span class="ident">vpn_ip_address_id</span>)<span class="question-mark">?</span>;
+        <span class="ident">Keypair::delete</span>(<span class="ident">connection</span>, <span class="ident">server</span>.<span class="ident">keypair_id</span>)<span class="question-mark">?</span>;
         <span class="ident">diesel::delete</span>(<span class="kw-2">&amp;</span><span class="ident">server</span>)
             .<span class="ident">execute</span>(<span class="ident">connection</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>)
