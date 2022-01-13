@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["_impl_insertable_for_newkeypair",""],["_impl_queryable_for_keypair",""],["create_keypair",""],["get_keypair_by_id","Returns the keypair for the given id"]],"struct":[["Keypair","A keypair that is used by a client or server"],["NewKeypair",""]]});

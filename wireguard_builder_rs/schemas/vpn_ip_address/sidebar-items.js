@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["_impl_insertable_for_newvpnipaddress",""],["_impl_queryable_for_vpnipaddress",""],["create_new_vpn_ip_address",""],["get_ip_address_by_id","Returns the vpn ip address for the given id"]],"struct":[["NewVpnIpAddress",""],["VpnIpAddress",""]]});

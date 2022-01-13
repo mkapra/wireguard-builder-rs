@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_impl_insertable_for_newkeypair",""],["_impl_queryable_for_keypair",""]],"struct":[["Keypair","A Keypair that is used by a `Client` or `Server`"],["NewKeypair","A [`Keypair`] that is insertable into the database"]],"type":[["GeneratedKeypair","A type that holds the values of a generated [`Keypair`] (private_key, public_key)"]]});
