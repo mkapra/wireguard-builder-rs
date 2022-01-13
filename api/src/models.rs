@@ -18,7 +18,7 @@ use vpn_network::{
     create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
 };
 mod client;
-use client::{create_client, delete_client, Client, InputClient, QueryableClient};
+use client::{Client, InputClient, QueryableClient};
 mod server;
 mod vpn_ip_address;
 use server::{create_server, delete_server, InputServer, QueryableServer, Server};
@@ -158,12 +158,12 @@ impl Mutation {
 
     /// Creates a client
     async fn create_client(&self, ctx: &Context<'_>, client: InputClient) -> Result<Client> {
-        create_client(&create_connection(ctx), &client).map(Client::from)
+        Client::create(&create_connection(ctx), &client).map(Client::from)
     }
 
     /// Deletes a client
     async fn delete_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<bool> {
-        delete_client(&create_connection(ctx), client_id)
+        Client::delete(&create_connection(ctx), client_id)
     }
 
     /// Creates a server
