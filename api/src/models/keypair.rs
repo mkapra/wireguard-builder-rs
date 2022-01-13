@@ -20,7 +20,7 @@ pub struct NewKeypair<'a> {
 }
 
 /// A Keypair that is used by a `Client` or `Server`
-#[derive(SimpleObject, Queryable, Debug)]
+#[derive(Debug, SimpleObject, Queryable, Identifiable)]
 pub struct Keypair {
     pub id: i32,
     pub public_key: String,
@@ -54,6 +54,22 @@ impl Keypair {
             .values(&new_keypair)
             .get_result(connection)
             .expect("Error saving generated keypair")
+    }
+
+    /// Deletes a [`Keypair`] from the database
+    ///
+    /// # Arguments
+    /// * `connection` - A connection to the database
+    /// * `keypair_id` - The id of the [`Keypair`] that should be deleted
+    ///
+    /// # Returns
+    /// Returns true if the operation was successful or an error
+    pub fn delete(connection: &SingleConnection, keypair_id: i32) -> Result<bool> {
+        let keypair = Keypair::get_by_id(connection, keypair_id)?;
+        diesel::delete(&keypair)
+            .execute(connection)
+            .map(|_| true)
+            .map_err(Error::from)
     }
 
     /// Generates a new [`Keypair`] and returns it

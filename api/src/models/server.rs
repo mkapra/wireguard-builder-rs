@@ -252,6 +252,8 @@ impl Server {
     /// Deletes the [`Server`] with the given id from the database
     pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<bool> {
         let server = Self::get_by_id(connection, server_id)?;
+        VpnIpAddress::delete(connection, server.vpn_ip_address_id)?;
+        Keypair::delete(connection, server.keypair_id)?;
         diesel::delete(&server)
             .execute(connection)
             .map(|_| true)

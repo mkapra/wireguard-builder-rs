@@ -11,7 +11,8 @@ pub struct NewVpnIpAddress<'a> {
 }
 
 /// A `VpnIpAddress` represents a unique ip address that is associated with a `VpnNetwork`
-#[derive(Debug, Queryable)]
+#[derive(Debug, Queryable, Identifiable)]
+#[table_name = "vpn_ip_addresses"]
 pub struct VpnIpAddress {
     pub id: i32,
     pub vpn_network_id: i32,
@@ -41,6 +42,22 @@ impl VpnIpAddress {
         diesel::insert_into(vpn_ip_addresses::table)
             .values(&new_ip)
             .get_result(connection)
+            .map_err(Error::from)
+    }
+
+    /// Deletes a [`VpnIpAddress`] from the database
+    ///
+    /// # Arguments
+    /// * `connection` - A connection to the database
+    /// * `vpn_ip_address_id` - The id of the [`VpnIpAddress`] that should be deleted
+    ///
+    /// # Returns
+    /// Returns true if the operation was successful or an error
+    pub fn delete<'a>(connection: &SingleConnection, vpn_ip_address_id: i32) -> Result<bool> {
+        let vpn_ip = Self::get_by_id(connection, vpn_ip_address_id);
+        diesel::delete(&vpn_ip)
+            .execute(connection)
+            .map(|_| true)
             .map_err(Error::from)
     }
 

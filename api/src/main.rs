@@ -11,6 +11,8 @@ mod validate;
 
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 mod schema;
 
 /// Creates a new pool for connecting to the database
@@ -43,11 +45,19 @@ async fn graphql_request(
     request.execute(schema).await
 }
 
+embed_migrations!();
+
 /// Entrypoint of this binary crate that initializes the webserver
 #[rocket::launch]
 fn rocket() -> _ {
+    let db_connection_pool = establish_connection();
+    let connection = db_connection_pool
+        .get()
+        .expect("Recieved no connection from pool");
+    embedded_migrations::run(&connection).expect("Migrations could not be applied successfully");
+
     rocket::build()
-        .manage(create_schema(establish_connection()))
+        .manage(create_schema(db_connection_pool))
         .mount(
             "/",
             routes![graphql_query, graphql_request, graphql_playground],
