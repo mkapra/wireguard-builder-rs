@@ -29,13 +29,13 @@ PersistentKeepalive = {{keepalive}}"#;
 #[belongs_to(DnsServer)]
 #[belongs_to(Keypair)]
 pub struct QueryableClient {
-    id: i32,
-    name: String,
-    description: Option<String>,
-    keepalive_interval: i32,
-    dns_server_id: i32,
-    keypair_id: i32,
-    vpn_ip_address_id: i32,
+    pub id: i32,
+    pub name: String,
+    pub description: Option<String>,
+    pub keepalive_interval: i32,
+    pub dns_server_id: i32,
+    pub keypair_id: i32,
+    pub vpn_ip_address_id: i32,
 }
 
 #[derive(Debug, SimpleObject)]
@@ -66,6 +66,7 @@ impl From<QueryableClient> for Client {
 impl Client {
     async fn config(&self, ctx: &Context<'_>) -> Option<String> {
         let mut handlebars = Handlebars::new();
+        handlebars.register_escape_fn(|c| c.to_string());
         handlebars
             .register_template_string("t1", CLIENT_CONFIG)
             .unwrap();
