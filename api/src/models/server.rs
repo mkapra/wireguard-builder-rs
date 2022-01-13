@@ -76,10 +76,24 @@ struct ServerConfig {
 
 /// Represents a client that is used for the configuration of the server
 #[derive(serde::Serialize)]
-pub struct ClientServerConfig {
-    pub name: String,
-    pub public_key: String,
-    pub ip_address: String,
+struct ClientServerConfig {
+    name: String,
+    public_key: String,
+    ip_address: String,
+}
+
+impl From<(&Context<'_>, QueryableClient)> for ClientServerConfig {
+    fn from((ctx, c): (&Context<'_>, QueryableClient)) -> Self {
+        let connection = create_connection(ctx);
+        let keypair = Keypair::get_by_id(&connection, c.keypair_id)
+            .expect("Could not find keypair for client");
+        let vpn_ip = VpnIpAddress::get_by_id(&connection, c.vpn_ip_address_id);
+        ClientServerConfig {
+            name: c.name,
+            public_key: keypair.public_key,
+            ip_address: vpn_ip.ip_address,
+        }
+    }
 }
 
 /// A server is part of the `VpnNetwork` and the endpoint for the `Client`s
@@ -131,15 +145,15 @@ impl Server {
             .keypair(ctx)
             .await
             .expect("Server does not hava a keypair");
-        let clients = vpn_network.get_associated_clients(&connection);
-        if let None = clients {
-            return None;
-        }
+        let clients = vpn_network.get_associated_clients(&connection)?;
         let data = ServerConfig {
             server_address: format!("{}/{}", ip_address, vpn_network.subnetmask),
             listen_port: vpn_network.listen_port,
             server_private_key: keypair.private_key,
-            clients: clients.unwrap(),
+            clients: clients
+                .into_iter()
+                .map(|c| ClientServerConfig::from((ctx, c)))
+                .collect(),
         };
 
         Some(

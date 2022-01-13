@@ -1,8 +1,8 @@
 //! Module that holds everything that is necessary for the `VpnNetwork`
 use async_graphql::*;
 
+use super::vpn_ip_address::VpnIpAddress;
 use super::*;
-use super::{server::ClientServerConfig, vpn_ip_address::VpnIpAddress};
 use crate::schema::{vpn_ip_addresses, vpn_networks};
 
 /// A [`VpnNetwork`] that is insertable into the database
@@ -35,7 +35,8 @@ pub struct InputVpnNetwork {
 }
 
 /// A VpnNetwork represents a network that contains clients and a server
-#[derive(SimpleObject, Queryable, Identifiable, AsChangeset, Debug)]
+#[derive(Debug, SimpleObject, Queryable, Identifiable, AsChangeset)]
+#[graphql(complex)]
 pub struct VpnNetwork {
     pub id: i32,
     pub name: String,
@@ -48,6 +49,25 @@ pub struct VpnNetwork {
     pub listen_port: i32,
     /// The name of the interface (e.g. wg0)
     pub interface_name: String,
+}
+
+#[ComplexObject]
+impl VpnNetwork {
+    /// All Clients that are associated with the VpnNetwork
+    async fn clients(&self, ctx: &Context<'_>) -> Result<Vec<Client>> {
+        match self.get_associated_clients(&create_connection(ctx)) {
+            Some(clients) => {
+                return Ok(clients.into_iter().map(Client::from).collect());
+            }
+            None => return Ok(vec![]),
+        }
+    }
+
+    /// The Server that is associated with the VpnNetwork
+    async fn server(&self, ctx: &Context<'_>) -> Option<Server> {
+        self.get_associated_server(&create_connection(ctx))
+            .map(|qserver| Server::from(qserver))
+    }
 }
 
 impl VpnNetwork {
@@ -158,7 +178,7 @@ impl VpnNetwork {
     pub fn get_associated_clients(
         &self,
         connection: &SingleConnection,
-    ) -> Option<Vec<ClientServerConfig>> {
+    ) -> Option<Vec<QueryableClient>> {
         use crate::schema::clients::dsl::*;
 
         match clients
@@ -169,19 +189,26 @@ impl VpnNetwork {
             Ok(results) => {
                 let mapped_clients = results
                     .into_iter()
-                    .map(|(c, _): (QueryableClient, VpnIpAddress)| {
-                        let keypair = Keypair::get_by_id(connection, c.keypair_id)
-                            .expect("Client has no keypair");
-                        let vpn_ip = VpnIpAddress::get_by_id(connection, c.vpn_ip_address_id);
-                        ClientServerConfig {
-                            name: c.name,
-                            public_key: keypair.public_key,
-                            ip_address: vpn_ip.ip_address,
-                        }
-                    })
+                    .map(|(c, _): (QueryableClient, VpnIpAddress)| c)
                     .collect();
 
                 return Some(mapped_clients);
+            }
+            Err(_) => return None,
+        }
+    }
+
+    /// Returns the `Server` that is associated with the [`VpnNetwork`]
+    pub fn get_associated_server(&self, connection: &SingleConnection) -> Option<QueryableServer> {
+        use crate::schema::servers::dsl::*;
+
+        match servers
+            .filter(vpn_ip_addresses::vpn_network_id.eq(self.id))
+            .inner_join(vpn_ip_addresses::table)
+            .first::<(QueryableServer, VpnIpAddress)>(connection)
+        {
+            Ok((server, _)) => {
+                return Some(server);
             }
             Err(_) => return None,
         }
