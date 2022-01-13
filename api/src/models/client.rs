@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 
 use handlebars::Handlebars;
 
-use super::*;
 use super::vpn_ip_address::VpnIpAddress;
+use super::*;
 use crate::schema::{clients, vpn_ip_addresses};
 use crate::validate::is_ip_in_network;
 

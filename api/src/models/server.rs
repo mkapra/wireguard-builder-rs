@@ -1,8 +1,8 @@
 //! Module that holds everything that is necessary for the `Server`
 use handlebars::Handlebars;
 
-use super::*;
 use super::vpn_ip_address::VpnIpAddress;
+use super::*;
 use crate::schema::servers;
 use crate::validate::is_ip_in_network;
 

@@ -1,6 +1,6 @@
 //! Provides some functions for validating content
-use std::net::Ipv4Addr;
 use ipaddress::IPAddress;
+use std::net::Ipv4Addr;
 
 /// Validates if an ip address is in the given network or not
 pub fn is_ip_in_network(ip_network: Ipv4Addr, subnetmask: i32, ip_address: Ipv4Addr) -> bool {
