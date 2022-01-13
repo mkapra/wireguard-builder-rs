@@ -90,11 +90,7 @@ impl From<QueryableClient> for Client {
 
 #[ComplexObject]
 impl Client {
-    /// Generates a valid wireguard configuration for the client
-    ///
-    /// # Returns
-    /// If all necessary information could be queried the configuration will be returned. If something is missing or
-    /// went wrong [`Option::None`] is returned
+    /// A wireguard configuration for the Client
     async fn config(&self, ctx: &Context<'_>) -> Option<String> {
         let mut handlebars = Handlebars::new();
         handlebars.set_strict_mode(true);

@@ -1,9 +1,11 @@
 //! Module that holds everything that is necessary for the `VpnNetwork`
 use async_graphql::*;
 
-use crate::diesel::prelude::*;
+use super::server::ClientServerConfig;
+use super::vpn_ip_address::VpnIpAddress;
+use super::*;
+use crate::schema::vpn_ip_addresses;
 use crate::schema::vpn_networks;
-use crate::models::SingleConnection;
 
 /// A [`VpnNetwork`] that is insertable into the database
 #[derive(Insertable)]
@@ -152,5 +154,38 @@ impl VpnNetwork {
             .load::<VpnNetwork>(connection)
             .expect("Could not query the database")
             .pop()
+    }
+
+    /// Returns the `Client`s that are associated with the [`VpnNetwork`]
+    pub fn get_associated_clients(
+        &self,
+        connection: &SingleConnection,
+    ) -> Option<Vec<ClientServerConfig>> {
+        use crate::schema::clients::dsl::*;
+
+        match clients
+            .filter(vpn_ip_addresses::vpn_network_id.eq(self.id))
+            .inner_join(vpn_ip_addresses::table)
+            .load(connection)
+        {
+            Ok(results) => {
+                let mapped_clients = results
+                    .into_iter()
+                    .map(|(c, _): (QueryableClient, VpnIpAddress)| {
+                        let keypair = Keypair::get_by_id(connection, c.keypair_id)
+                            .expect("Client has no keypair");
+                        let vpn_ip = VpnIpAddress::get_by_id(connection, c.vpn_ip_address_id);
+                        ClientServerConfig {
+                            name: c.name,
+                            public_key: keypair.public_key,
+                            ip_address: vpn_ip.ip_address,
+                        }
+                    })
+                    .collect();
+
+                return Some(mapped_clients);
+            }
+            Err(_) => return None,
+        }
     }
 }

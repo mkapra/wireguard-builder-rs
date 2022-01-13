@@ -4,7 +4,6 @@ use handlebars::Handlebars;
 use super::*;
 use super::vpn_ip_address::VpnIpAddress;
 use crate::schema::servers;
-use crate::schema::vpn_ip_addresses;
 use crate::validate::is_ip_in_network;
 
 const SERVER_CONFIG: &str = r#"# Server configuration
@@ -22,10 +21,35 @@ AllowedIps = {{ip_address}}/32
 {{/each}}
 "#;
 
-// fn format_helper(h: &Helper, _: &Handlebars, _: &Context, rc: &mut RenderContext, out: &mut dyn Output) -> Result<(), RenderError> {
-//     rc.
-//     Ok(())
-// }
+/// Input type for a new Server
+#[derive(InputObject)]
+pub struct InputServer {
+    pub name: String,
+    pub description: Option<String>,
+    /// The interface where all traffic should be forwarded to
+    pub forward_interface: Option<String>,
+    /// The ip address or FQDN that is used by the client to connect to the server
+    pub external_ip_address: String,
+    /// The id of the keypair that should be used by the server
+    pub keypair_id: i32,
+    /// The ip address that the server should have in the vpn network
+    #[graphql(validator(ip))]
+    pub ip_address: String,
+    /// The id of the vpn network which the server should be associated with
+    pub vpn_network_id: i32,
+}
+
+/// A `Server` that is insertable into the database
+#[derive(Debug, Insertable)]
+#[table_name = "servers"]
+struct InsertableServer {
+    pub name: String,
+    pub description: Option<String>,
+    pub forward_interface: Option<String>,
+    pub external_ip_address: String,
+    pub keypair_id: i32,
+    pub vpn_ip_address_id: i32,
+}
 
 #[derive(Debug, Queryable, Associations, Identifiable)]
 #[table_name = "servers"]
@@ -41,18 +65,33 @@ pub struct QueryableServer {
     vpn_ip_address_id: i32,
 }
 
+/// Represents the configuration for a server
+#[derive(serde::Serialize)]
+struct ServerConfig {
+    server_address: String,
+    listen_port: i32,
+    server_private_key: String,
+    clients: Vec<ClientServerConfig>,
+}
+
+/// Represents a client that is used for the configuration of the server
+#[derive(serde::Serialize)]
+pub struct ClientServerConfig {
+    pub name: String,
+    pub public_key: String,
+    pub ip_address: String,
+}
+
+/// A server is part of the `VpnNetwork` and the endpoint for the `Client`s
 #[derive(Debug, SimpleObject)]
 #[graphql(complex)]
 pub struct Server {
-    /// The id
     pub id: i32,
-    /// A unique name
     pub name: String,
-    /// An optional description
     pub description: Option<String>,
     /// The interface where all traffic should be forwarded to
     pub forward_interface: Option<String>,
-    /// The ip address or DNS name that is used by the client to connect to the server
+    /// The ip address or FQDN that is used by the client to connect to the server
     pub external_ip_address: String,
 }
 
@@ -68,23 +107,9 @@ impl From<QueryableServer> for Server {
     }
 }
 
-#[derive(serde::Serialize)]
-struct ServerConfig {
-    server_address: String,
-    listen_port: i32,
-    server_private_key: String,
-    clients: Vec<ClientServerConfig>,
-}
-
-#[derive(serde::Serialize)]
-struct ClientServerConfig {
-    name: String,
-    public_key: String,
-    ip_address: String,
-}
-
 #[ComplexObject]
 impl Server {
+    /// A wireguard configuration for the Server
     pub async fn config(&self, ctx: &Context<'_>) -> Option<String> {
         let connection = create_connection(ctx);
         let mut handlebars = Handlebars::new();
@@ -106,7 +131,7 @@ impl Server {
             .keypair(ctx)
             .await
             .expect("Server does not hava a keypair");
-        let clients = get_clients_for_server(&connection, &vpn_network);
+        let clients = vpn_network.get_associated_clients(&connection);
         if let None = clients {
             return None;
         }
@@ -127,7 +152,7 @@ impl Server {
     pub async fn keypair(&self, ctx: &Context<'_>) -> Result<Keypair> {
         use crate::schema::keypairs::dsl::*;
         let connection = create_connection(ctx);
-        let server = get_server_by_id(&connection, self.id)?;
+        let server = Self::get_by_id(&connection, self.id)?;
         keypairs
             .filter(id.eq(server.keypair_id))
             .first::<Keypair>(&connection)
@@ -142,7 +167,7 @@ impl Server {
     /// The vpn network that the client is associated with
     async fn vpn_network(&self, ctx: &Context<'_>) -> Result<VpnNetwork> {
         let connection = create_connection(ctx);
-        let client = get_server_by_id(&connection, self.id)?;
+        let client = Self::get_by_id(&connection, self.id)?;
         let ip_address = VpnIpAddress::get_by_id(&connection, client.vpn_ip_address_id);
 
         VpnNetwork::get_by_id(&connection, ip_address.vpn_network_id)
@@ -152,52 +177,22 @@ impl Server {
     /// The ip address of the server in the vpn network
     async fn ip_address(&self, ctx: &Context<'_>) -> Result<String> {
         let connection = create_connection(ctx);
-        let server = get_server_by_id(&connection, self.id)?;
+        let server = Self::get_by_id(&connection, self.id)?;
         Ok(VpnIpAddress::get_by_id(&connection, server.vpn_ip_address_id).ip_address)
     }
 }
 
-/// Input type for a new server
-#[derive(InputObject)]
-pub struct InputServer {
-    /// A unique name
-    pub name: String,
-    /// An optional description
-    pub description: Option<String>,
-    /// The interface where all traffic should be forwarded to
-    pub forward_interface: Option<String>,
-    /// The ip address or DNS name that is used by the client to connect to the server
-    pub external_ip_address: String,
-    /// The id of the keypair that should be used by the server
-    pub keypair_id: i32,
-    /// The ip address that the server should have in the vpn network
-    #[graphql(validator(ip))]
-    pub ip_address: String,
-    /// The vpn network which the server should be associated with
-    pub vpn_network_id: i32,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "servers"]
-struct InsertableServer {
-    pub name: String,
-    pub description: Option<String>,
-    pub forward_interface: Option<String>,
-    pub external_ip_address: String,
-    pub keypair_id: i32,
-    pub vpn_ip_address_id: i32,
-}
-
-/// Creates a new server in the database
+impl Server {
+/// Creates a new [`Server`] in the database
 ///
 /// # Arguments
 /// * `connection` - A connection to the database
-/// * `server` - The server that should be inserted into the database
+/// * `server` - The [`Server`] that should be inserted into the database
 ///
 /// # Returns
-/// Returns [`Result::Ok`] if the operation was successful. If validation of the input parameters fails an
-/// [`Result::Error`] is returned.
-pub fn create_server(
+/// Returns the [`Server`] if the operation was successful. If validation of the input parameters fails an
+/// error is returned.
+pub fn create(
     connection: &SingleConnection,
     server: &InputServer,
 ) -> Result<QueryableServer> {
@@ -257,24 +252,24 @@ pub fn create_server(
         .map_err(Error::from)
 }
 
-/// Deletes the server with the given id from the database
-pub fn delete_server(connection: &SingleConnection, server_id: i32) -> Result<bool> {
-    let server = get_server_by_id(connection, server_id)?;
+/// Deletes the [`Server`] with the given id from the database
+pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<bool> {
+    let server = Self::get_by_id(connection, server_id)?;
     diesel::delete(&server)
         .execute(connection)
         .map(|_| true)
         .map_err(Error::from)
 }
 
-/// Returns the server for the given id
+/// Returns the [`Server`] for the given id
 ///
 /// # Arguments
 /// * `connection` - A connection to the database
-/// * `client_id` - The id of the server that should be returned
+/// * `client_id` - The id of the [`Server`] that should be returned
 ///
 /// # Panics
-/// Panics if no server was found
-fn get_server_by_id(connection: &SingleConnection, server_id: i32) -> Result<QueryableServer> {
+/// Panics if no `Server` was found
+fn get_by_id(connection: &SingleConnection, server_id: i32) -> Result<QueryableServer> {
     use crate::schema::servers::dsl::*;
     servers
         .filter(id.eq(server_id))
@@ -286,36 +281,4 @@ fn get_server_by_id(connection: &SingleConnection, server_id: i32) -> Result<Que
             ))
         })
 }
-
-/// Returns the clients that are associated with a vpn network
-fn get_clients_for_server(
-    connection: &SingleConnection,
-    vpn_network: &VpnNetwork,
-) -> Option<Vec<ClientServerConfig>> {
-    use crate::schema::clients::dsl::*;
-
-    match clients
-        .filter(vpn_ip_addresses::vpn_network_id.eq(vpn_network.id))
-        .inner_join(vpn_ip_addresses::table)
-        .load(connection)
-    {
-        Ok(results) => {
-            let mapped_clients = results
-                .into_iter()
-                .map(|(c, _): (QueryableClient, VpnIpAddress)| {
-                    let keypair =
-                        Keypair::get_by_id(connection, c.keypair_id).expect("Client has no keypair");
-                    let vpn_ip = VpnIpAddress::get_by_id(connection, c.vpn_ip_address_id);
-                    ClientServerConfig {
-                        name: c.name,
-                        public_key: keypair.public_key,
-                        ip_address: vpn_ip.ip_address,
-                    }
-                })
-                .collect();
-
-            return Some(mapped_clients);
-        }
-        Err(_) => return None,
-    }
 }

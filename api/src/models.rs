@@ -10,18 +10,14 @@ use crate::diesel::prelude::*;
 mod keypair;
 use keypair::Keypair;
 mod dns_server;
-use dns_server::{
-    DnsServer, InputDnsServer,
-};
+use dns_server::{DnsServer, InputDnsServer};
 mod vpn_network;
-use vpn_network::{
-    InputVpnNetwork, VpnNetwork,
-};
+use vpn_network::{InputVpnNetwork, VpnNetwork};
 mod client;
 use client::{Client, InputClient, QueryableClient};
 mod server;
 mod vpn_ip_address;
-use server::{create_server, delete_server, InputServer, QueryableServer, Server};
+use server::{InputServer, QueryableServer, Server};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -168,12 +164,12 @@ impl Mutation {
 
     /// Creates a server
     async fn create_server(&self, ctx: &Context<'_>, server: InputServer) -> Result<Server> {
-        create_server(&create_connection(ctx), &server).map(Server::from)
+        Server::create(&create_connection(ctx), &server).map(Server::from)
     }
 
     /// Deletes a server
     async fn delete_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<bool> {
-        delete_server(&create_connection(ctx), server_id)
+        Server::delete(&create_connection(ctx), server_id)
     }
 }
 
