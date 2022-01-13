@@ -215,6 +215,8 @@ impl Client {
     /// * `id` - The id of the client that should be deleted
     pub fn delete(connection: &SingleConnection, id: i32) -> Result<bool> {
         let client = Client::get_by_id(connection, id)?;
+        VpnIpAddress::delete(connection, client.vpn_ip_address_id)?;
+        Keypair::delete(connection, client.keypair_id)?;
         diesel::delete(&client)
             .execute(connection)
             .map(|_| true)
