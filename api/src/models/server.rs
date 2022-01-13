@@ -1,7 +1,6 @@
 //! Module that holds everything that is necessary for the `Server`
 use handlebars::Handlebars;
 
-use super::keypair::get_keypair_by_id;
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id, VpnIpAddress};
 use super::vpn_network::get_vpn_network_by_id;
 use super::*;
@@ -204,7 +203,7 @@ pub fn create_server(
     server: &InputServer,
 ) -> Result<QueryableServer> {
     // Check if keypair exists
-    if let Err(_) = get_keypair_by_id(connection, server.keypair_id) {
+    if let Err(_) = Keypair::get_by_id(connection, server.keypair_id) {
         return Err(Error::new(format!(
             "Keypair with id {} not found for client",
             server.keypair_id
@@ -306,7 +305,7 @@ fn get_clients_for_server(
                 .into_iter()
                 .map(|(c, _): (QueryableClient, VpnIpAddress)| {
                     let keypair =
-                        get_keypair_by_id(connection, c.keypair_id).expect("Client has no keypair");
+                        Keypair::get_by_id(connection, c.keypair_id).expect("Client has no keypair");
                     let vpn_ip = get_ip_address_by_id(connection, c.vpn_ip_address_id);
                     ClientServerConfig {
                         name: c.name,

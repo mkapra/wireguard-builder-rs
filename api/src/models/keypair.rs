@@ -1,24 +1,17 @@
-//! Module that holds everything that is necessary for the `Keypairs`
+//! Module that holds everything that is necessary for the `Keypair` type
 use async_graphql::*;
 use diesel::{Insertable, Queryable};
 use std::process::{Command, Stdio};
 use std::{io::Write, str};
 
 use crate::diesel::prelude::*;
-use crate::schema::keypairs;
 use crate::models::SingleConnection;
+use crate::schema::keypairs;
 
-/// A keypair that is used by a client or server
-#[derive(SimpleObject, Queryable, Debug)]
-pub struct Keypair {
-    /// The id of the keypair
-    pub id: i32,
-    /// The public key of the keypair
-    pub public_key: String,
-    /// The private key of the keypair
-    pub private_key: String,
-}
+/// A type that holds the values of a generated [`Keypair`] (private_key, public_key)
+type GeneratedKeypair = (String, String);
 
+/// A [`Keypair`] that is insertable into the database
 #[derive(Insertable)]
 #[table_name = "keypairs"]
 pub struct NewKeypair<'a> {
@@ -26,37 +19,45 @@ pub struct NewKeypair<'a> {
     pub private_key: &'a str,
 }
 
-// Creates a new keypair in the database
-//
-// # Arguments
-// * `connection` - A connection to the database
-// * `public_key` - The public key
-// * `private_key` - The private key
-//
-// # Returns
-// Returns the created keypair
-//
-// # Panics
-// Panics if an error occured while saving to the database.
-pub fn create_keypair<'a>(
-    connection: &SingleConnection,
-    public_key: &'a str,
-    private_key: &'a str,
-) -> Keypair {
-    let new_keypair = NewKeypair {
-        public_key,
-        private_key,
-    };
-
-    diesel::insert_into(keypairs::table)
-        .values(&new_keypair)
-        .get_result(connection)
-        .expect("Error saving generated keypair")
+/// A Keypair that is used by a `Client` or `Server`
+#[derive(SimpleObject, Queryable, Debug)]
+pub struct Keypair {
+    pub id: i32,
+    pub public_key: String,
+    pub private_key: String,
 }
 
 impl Keypair {
-    /// Generates a new keypair and returns it
-    pub fn generate_keypair() -> (String, String) {
+    // Creates a new [`Keypair`] in the database
+    //
+    // # Arguments
+    // * `connection` - A connection to the database
+    // * `public_key` - The public key
+    // * `private_key` - The private key
+    //
+    // # Returns
+    // Returns the created [`Keypair`]
+    //
+    // # Panics
+    // Panics if an error occured while saving to the database.
+    pub fn create<'a>(
+        connection: &SingleConnection,
+        public_key: &'a str,
+        private_key: &'a str,
+    ) -> Keypair {
+        let new_keypair = NewKeypair {
+            public_key,
+            private_key,
+        };
+
+        diesel::insert_into(keypairs::table)
+            .values(&new_keypair)
+            .get_result(connection)
+            .expect("Error saving generated keypair")
+    }
+
+    /// Generates a new [`Keypair`] and returns it
+    pub fn generate_keypair() -> GeneratedKeypair {
         // Generate private key
         let command_privkey = Command::new("wg")
             .arg("genkey")
@@ -92,26 +93,26 @@ impl Keypair {
 
         (priv_key, pub_key)
     }
-}
 
-/// Returns the keypair for the given id
-///
-/// # Arguments
-/// * `connection` - A connection to the database
-/// * `net_id` - The id of the keypair that should be returned
-///
-/// # Panics
-/// If the keypair was not found in the database
-pub fn get_keypair_by_id(connection: &SingleConnection, keypair_id: i32) -> Result<Keypair> {
-    use crate::schema::keypairs::dsl::*;
+    /// Returns the [`Keypair`] for the given id
+    ///
+    /// # Arguments
+    /// * `connection` - A connection to the database
+    /// * `keypair_id` - The id of the [`Keypair`] that should be returned
+    ///
+    /// # Returns
+    /// Returns the [`Keypair`] or an `Result::Error` if the [`Keypair`] does not exist or the query failed
+    pub fn get_by_id(connection: &SingleConnection, keypair_id: i32) -> Result<Keypair> {
+        use crate::schema::keypairs::dsl::*;
 
-    keypairs
-        .filter(id.eq(keypair_id))
-        .first(connection)
-        .map_err(|e| {
-            Error::new(format!(
-                "Could not query keypair with id {} ({})",
-                keypair_id, e
-            ))
-        })
+        keypairs
+            .filter(id.eq(keypair_id))
+            .first(connection)
+            .map_err(|e| {
+                Error::new(format!(
+                    "Could not query keypair with id {} ({})",
+                    keypair_id, e
+                ))
+            })
+    }
 }

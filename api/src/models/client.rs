@@ -4,7 +4,6 @@ use std::collections::BTreeMap;
 use handlebars::Handlebars;
 
 use super::dns_server::get_dns_server_by_id;
-use super::keypair::get_keypair_by_id;
 use super::vpn_ip_address::{create_new_vpn_ip_address, get_ip_address_by_id};
 use super::vpn_network::get_vpn_network_by_id;
 use super::*;
@@ -252,7 +251,7 @@ impl Client {
         }
 
         // Check if keypair exists
-        if get_keypair_by_id(connection, client.keypair_id).is_err() {
+        if Keypair::get_by_id(connection, client.keypair_id).is_err() {
             return Err(Error::new(format!(
                 "Keypair with id {} not found for client",
                 client.keypair_id

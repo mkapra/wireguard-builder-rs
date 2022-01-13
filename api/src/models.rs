@@ -8,7 +8,7 @@ use diesel::{
 use crate::diesel::prelude::*;
 
 mod keypair;
-use keypair::{create_keypair, Keypair};
+use keypair::Keypair;
 mod dns_server;
 use dns_server::{
     create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
@@ -101,7 +101,7 @@ impl Mutation {
     /// Generates a keypair
     async fn generate_keypair(&self, ctx: &Context<'_>) -> Keypair {
         let (priv_key, pub_key) = Keypair::generate_keypair();
-        create_keypair(&create_connection(ctx), &pub_key, &priv_key)
+        Keypair::create(&create_connection(ctx), &pub_key, &priv_key)
     }
 
     /// Creates a new dns server
