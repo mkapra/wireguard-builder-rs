@@ -8,20 +8,16 @@ use diesel::{
 use crate::diesel::prelude::*;
 
 mod keypair;
-use keypair::{create_keypair, Keypair};
+use keypair::Keypair;
 mod dns_server;
-use dns_server::{
-    create_dns_server, delete_dns_server, update_dns_server, DnsServer, InputDnsServer,
-};
+use dns_server::{DnsServer, InputDnsServer};
 mod vpn_network;
-use vpn_network::{
-    create_vpn_network, delete_vpn_network, update_vpn_network, InputVpnNetwork, VpnNetwork,
-};
+use vpn_network::{InputVpnNetwork, VpnNetwork};
 mod client;
-use client::{create_client, delete_client, Client, InputClient, QueryableClient};
+use client::{Client, InputClient, QueryableClient};
 mod server;
 mod vpn_ip_address;
-use server::{create_server, delete_server, InputServer, QueryableServer, Server};
+use server::{InputServer, QueryableServer, Server};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -101,7 +97,7 @@ impl Mutation {
     /// Generates a keypair
     async fn generate_keypair(&self, ctx: &Context<'_>) -> Keypair {
         let (priv_key, pub_key) = Keypair::generate_keypair();
-        create_keypair(&create_connection(ctx), &pub_key, &priv_key)
+        Keypair::create(&create_connection(ctx), &pub_key, &priv_key)
     }
 
     /// Creates a new dns server
@@ -110,7 +106,7 @@ impl Mutation {
         ctx: &Context<'_>,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        create_dns_server(&create_connection(ctx), &dns_server)
+        DnsServer::create(&create_connection(ctx), &dns_server)
     }
 
     /// Updates an existing dns server
@@ -120,7 +116,7 @@ impl Mutation {
         server_id: i32,
         dns_server: InputDnsServer,
     ) -> Result<DnsServer> {
-        update_dns_server(&create_connection(ctx), server_id, &dns_server)
+        DnsServer::update(&create_connection(ctx), server_id, &dns_server)
     }
 
     /// Deletes a dns server
@@ -129,7 +125,7 @@ impl Mutation {
         ctx: &Context<'_>,
         #[graphql(desc = "The id of the server that should be deleted")] server_id: i32,
     ) -> Result<bool> {
-        delete_dns_server(&create_connection(ctx), server_id).map(|_| true)
+        DnsServer::delete(&create_connection(ctx), server_id).map(|_| true)
     }
 
     /// Creates a vpn network
@@ -138,7 +134,7 @@ impl Mutation {
         ctx: &Context<'_>,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
-        create_vpn_network(&create_connection(ctx), &vpn_network)
+        VpnNetwork::create(&create_connection(ctx), &vpn_network)
     }
 
     /// Updates an existing vpn network
@@ -148,32 +144,32 @@ impl Mutation {
         net_id: i32,
         vpn_network: InputVpnNetwork,
     ) -> Result<VpnNetwork> {
-        update_vpn_network(&create_connection(ctx), net_id, &vpn_network)
+        VpnNetwork::update(&create_connection(ctx), net_id, &vpn_network)
     }
 
     /// Deletes a vpn network
     async fn delete_vpn_network(&self, ctx: &Context<'_>, network_id: i32) -> Result<bool> {
-        delete_vpn_network(&create_connection(ctx), network_id)
+        VpnNetwork::delete(&create_connection(ctx), network_id)
     }
 
     /// Creates a client
     async fn create_client(&self, ctx: &Context<'_>, client: InputClient) -> Result<Client> {
-        create_client(&create_connection(ctx), &client).map(Client::from)
+        Client::create(&create_connection(ctx), &client).map(Client::from)
     }
 
     /// Deletes a client
     async fn delete_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<bool> {
-        delete_client(&create_connection(ctx), client_id)
+        Client::delete(&create_connection(ctx), client_id)
     }
 
     /// Creates a server
     async fn create_server(&self, ctx: &Context<'_>, server: InputServer) -> Result<Server> {
-        create_server(&create_connection(ctx), &server).map(Server::from)
+        Server::create(&create_connection(ctx), &server).map(Server::from)
     }
 
     /// Deletes a server
     async fn delete_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<bool> {
-        delete_server(&create_connection(ctx), server_id)
+        Server::delete(&create_connection(ctx), server_id)
     }
 }
 

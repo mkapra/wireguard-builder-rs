@@ -5,8 +5,8 @@ use dotenv::dotenv;
 use rocket::{response::content, routes, State};
 use std::env;
 
-mod schemas;
-use schemas::{create_schema, DatabaseConnection, GrahpQLSchema};
+mod models;
+use models::{create_schema, DatabaseConnection, GrahpQLSchema};
 mod validate;
 
 #[macro_use]
