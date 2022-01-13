@@ -3,7 +3,7 @@ use async_graphql::*;
 
 use crate::diesel::prelude::*;
 use crate::schema::vpn_networks;
-use crate::schemas::SingleConnection;
+use crate::models::SingleConnection;
 
 #[derive(SimpleObject, Queryable, Identifiable, AsChangeset, Debug)]
 pub struct VpnNetwork {

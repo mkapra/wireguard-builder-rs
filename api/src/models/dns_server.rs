@@ -3,7 +3,7 @@ use async_graphql::*;
 
 use crate::diesel::prelude::*;
 use crate::schema::dns_servers;
-use crate::schemas::SingleConnection;
+use crate::models::SingleConnection;
 
 /// A dns server that is used by the client
 #[derive(SimpleObject, Queryable, Identifiable, AsChangeset, Debug)]

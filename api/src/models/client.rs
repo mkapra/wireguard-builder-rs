@@ -10,7 +10,7 @@ use super::vpn_network::get_vpn_network_by_id;
 use super::*;
 use crate::schema::clients;
 use crate::schema::vpn_ip_addresses;
-use crate::schemas::vpn_ip_address::VpnIpAddress;
+use crate::models::vpn_ip_address::VpnIpAddress;
 use crate::validate::is_ip_in_network;
 
 const CLIENT_CONFIG: &str = r#"[Interface]

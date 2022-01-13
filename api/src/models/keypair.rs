@@ -6,7 +6,7 @@ use std::{io::Write, str};
 
 use crate::diesel::prelude::*;
 use crate::schema::keypairs;
-use crate::schemas::SingleConnection;
+use crate::models::SingleConnection;
 
 /// A keypair that is used by a client or server
 #[derive(SimpleObject, Queryable, Debug)]
