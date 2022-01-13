@@ -298,6 +298,17 @@ impl Client {
             .map_err(Error::from)
     }
 
+    /// Returns all the ids of keypairs that are used by a client
+    pub fn get_keypair_ids(connection: &SingleConnection) -> Result<Vec<i32>> {
+        use crate::schema::clients::dsl::*;
+        Ok(clients
+            .load::<QueryableClient>(connection)
+            .map_err(Error::from)?
+            .into_iter()
+            .map(|c| c.keypair_id)
+            .collect())
+    }
+
     /// Returns the client for the given id
     ///
     /// # Arguments
