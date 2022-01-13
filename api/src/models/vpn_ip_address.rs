@@ -53,10 +53,7 @@ impl VpnIpAddress {
     ///
     /// # Returns
     /// Returns true if the operation was successful or an error
-    pub fn delete<'a>(
-        connection: &SingleConnection,
-        vpn_ip_address_id: i32
-    ) -> Result<bool> {
+    pub fn delete<'a>(connection: &SingleConnection, vpn_ip_address_id: i32) -> Result<bool> {
         let vpn_ip = Self::get_by_id(connection, vpn_ip_address_id);
         diesel::delete(&vpn_ip)
             .execute(connection)

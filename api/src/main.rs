@@ -54,8 +54,7 @@ fn rocket() -> _ {
     let connection = db_connection_pool
         .get()
         .expect("Recieved no connection from pool");
-    embedded_migrations::run(&connection)
-        .expect("Migrations could not be applied successfully");
+    embedded_migrations::run(&connection).expect("Migrations could not be applied successfully");
 
     rocket::build()
         .manage(create_schema(db_connection_pool))
