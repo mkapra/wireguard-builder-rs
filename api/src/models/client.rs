@@ -4,9 +4,9 @@ use std::collections::BTreeMap;
 use handlebars::Handlebars;
 
 use super::*;
+use crate::models::vpn_ip_address::VpnIpAddress;
 use crate::schema::clients;
 use crate::schema::vpn_ip_addresses;
-use crate::models::vpn_ip_address::VpnIpAddress;
 use crate::validate::is_ip_in_network;
 
 const CLIENT_CONFIG: &str = r#"[Interface]
@@ -231,10 +231,7 @@ impl Client {
     /// # Returns
     /// Returns [`Result::Ok`] if the operation was a success. If validation of the input parameters fails an
     /// [`Result::Error`] is returned.
-    pub fn create(
-        connection: &SingleConnection,
-        client: &InputClient,
-    ) -> Result<QueryableClient> {
+    pub fn create(connection: &SingleConnection, client: &InputClient) -> Result<QueryableClient> {
         // Check if dns server exists
         if DnsServer::get_by_id(connection, client.dns_server_id).is_none() {
             return Err(Error::new(format!(

@@ -1,8 +1,8 @@
 //! Module that holds everything that is necessary for the `Server`
 use handlebars::Handlebars;
 
-use super::*;
 use super::vpn_ip_address::VpnIpAddress;
+use super::*;
 use crate::schema::servers;
 use crate::validate::is_ip_in_network;
 
@@ -183,102 +183,99 @@ impl Server {
 }
 
 impl Server {
-/// Creates a new [`Server`] in the database
-///
-/// # Arguments
-/// * `connection` - A connection to the database
-/// * `server` - The [`Server`] that should be inserted into the database
-///
-/// # Returns
-/// Returns the [`Server`] if the operation was successful. If validation of the input parameters fails an
-/// error is returned.
-pub fn create(
-    connection: &SingleConnection,
-    server: &InputServer,
-) -> Result<QueryableServer> {
-    // Check if keypair exists
-    if let Err(_) = Keypair::get_by_id(connection, server.keypair_id) {
-        return Err(Error::new(format!(
-            "Keypair with id {} not found for client",
-            server.keypair_id
-        )));
-    }
+    /// Creates a new [`Server`] in the database
+    ///
+    /// # Arguments
+    /// * `connection` - A connection to the database
+    /// * `server` - The [`Server`] that should be inserted into the database
+    ///
+    /// # Returns
+    /// Returns the [`Server`] if the operation was successful. If validation of the input parameters fails an
+    /// error is returned.
+    pub fn create(connection: &SingleConnection, server: &InputServer) -> Result<QueryableServer> {
+        // Check if keypair exists
+        if let Err(_) = Keypair::get_by_id(connection, server.keypair_id) {
+            return Err(Error::new(format!(
+                "Keypair with id {} not found for client",
+                server.keypair_id
+            )));
+        }
 
-    // Check if vpn network exists
-    match VpnNetwork::get_by_id(connection, server.vpn_network_id) {
-        Some(network) => {
-            // Check if ip address is in range of vpn network
-            // Unwrap here because the ip addresses are already validated
-            if let false = is_ip_in_network(
-                network.ip_network.parse().unwrap(),
-                network.subnetmask,
-                server.ip_address.parse().unwrap(),
-            ) {
+        // Check if vpn network exists
+        match VpnNetwork::get_by_id(connection, server.vpn_network_id) {
+            Some(network) => {
+                // Check if ip address is in range of vpn network
+                // Unwrap here because the ip addresses are already validated
+                if let false = is_ip_in_network(
+                    network.ip_network.parse().unwrap(),
+                    network.subnetmask,
+                    server.ip_address.parse().unwrap(),
+                ) {
+                    return Err(Error::new(format!(
+                        "IP address {} is not in range of network {}/{}",
+                        server.ip_address, network.ip_network, network.subnetmask
+                    )));
+                }
+            }
+            None => {
                 return Err(Error::new(format!(
-                    "IP address {} is not in range of network {}/{}",
-                    server.ip_address, network.ip_network, network.subnetmask
-                )));
+                    "VPN network with id {} not found for client",
+                    server.vpn_network_id
+                )))
             }
         }
-        None => {
-            return Err(Error::new(format!(
-                "VPN network with id {} not found for client",
-                server.vpn_network_id
-            )))
-        }
-    }
 
-    let vpn_ip_obj =
-        VpnIpAddress::create(connection, server.vpn_network_id, &server.ip_address).map_err(
-            |e| {
-                Error::new(format!(
+        let vpn_ip_obj =
+            VpnIpAddress::create(connection, server.vpn_network_id, &server.ip_address).map_err(
+                |e| {
+                    Error::new(format!(
             "Could not create server. Maybe this IP address is already taken? (Error: {:?})",
             e
         ))
-            },
-        )?;
+                },
+            )?;
 
-    let new_server = InsertableServer {
-        name: server.name.clone(),
-        description: server.description.clone(),
-        forward_interface: server.forward_interface.clone(),
-        external_ip_address: server.external_ip_address.clone(),
-        keypair_id: server.keypair_id,
-        vpn_ip_address_id: vpn_ip_obj.id,
-    };
-    diesel::insert_into(servers::table)
-        .values(&new_server)
-        .get_result(connection)
-        .map_err(Error::from)
-}
+        let new_server = InsertableServer {
+            name: server.name.clone(),
+            description: server.description.clone(),
+            forward_interface: server.forward_interface.clone(),
+            external_ip_address: server.external_ip_address.clone(),
+            keypair_id: server.keypair_id,
+            vpn_ip_address_id: vpn_ip_obj.id,
+        };
+        diesel::insert_into(servers::table)
+            .values(&new_server)
+            .get_result(connection)
+            .map_err(Error::from)
+    }
 
-/// Deletes the [`Server`] with the given id from the database
-pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<bool> {
-    let server = Self::get_by_id(connection, server_id)?;
-    diesel::delete(&server)
-        .execute(connection)
-        .map(|_| true)
-        .map_err(Error::from)
-}
+    /// Deletes the [`Server`] with the given id from the database
+    pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<bool> {
+        let server = Self::get_by_id(connection, server_id)?;
+        diesel::delete(&server)
+            .execute(connection)
+            .map(|_| true)
+            .map_err(Error::from)
+    }
 
-/// Returns the [`Server`] for the given id
-///
-/// # Arguments
-/// * `connection` - A connection to the database
-/// * `client_id` - The id of the [`Server`] that should be returned
-///
-/// # Panics
-/// Panics if no `Server` was found
-fn get_by_id(connection: &SingleConnection, server_id: i32) -> Result<QueryableServer> {
-    use crate::schema::servers::dsl::*;
-    servers
-        .filter(id.eq(server_id))
-        .first::<QueryableServer>(connection)
-        .map_err(|e| {
-            Error::new(format!(
-                "Could not find server with id {} ({:?})",
-                server_id, e
-            ))
-        })
-}
+    /// Returns the [`Server`] for the given id
+    ///
+    /// # Arguments
+    /// * `connection` - A connection to the database
+    /// * `client_id` - The id of the [`Server`] that should be returned
+    ///
+    /// # Panics
+    /// Panics if no `Server` was found
+    fn get_by_id(connection: &SingleConnection, server_id: i32) -> Result<QueryableServer> {
+        use crate::schema::servers::dsl::*;
+        servers
+            .filter(id.eq(server_id))
+            .first::<QueryableServer>(connection)
+            .map_err(|e| {
+                Error::new(format!(
+                    "Could not find server with id {} ({:?})",
+                    server_id, e
+                ))
+            })
+    }
 }
