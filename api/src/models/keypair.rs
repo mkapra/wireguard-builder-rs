@@ -4,8 +4,8 @@ use diesel::{Insertable, Queryable};
 use std::process::{Command, Stdio};
 use std::{io::Write, str};
 
+use super::SingleConnection;
 use crate::diesel::prelude::*;
-use crate::models::SingleConnection;
 use crate::schema::keypairs;
 
 /// A type that holds the values of a generated [`Keypair`] (private_key, public_key)

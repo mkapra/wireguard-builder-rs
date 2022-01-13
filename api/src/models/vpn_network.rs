@@ -1,11 +1,9 @@
 //! Module that holds everything that is necessary for the `VpnNetwork`
 use async_graphql::*;
 
-use super::server::ClientServerConfig;
-use super::vpn_ip_address::VpnIpAddress;
 use super::*;
-use crate::schema::vpn_ip_addresses;
-use crate::schema::vpn_networks;
+use super::{server::ClientServerConfig, vpn_ip_address::VpnIpAddress};
+use crate::schema::{vpn_ip_addresses, vpn_networks};
 
 /// A [`VpnNetwork`] that is insertable into the database
 #[derive(Insertable)]

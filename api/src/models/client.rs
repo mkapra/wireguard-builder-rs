@@ -4,9 +4,8 @@ use std::collections::BTreeMap;
 use handlebars::Handlebars;
 
 use super::*;
-use crate::models::vpn_ip_address::VpnIpAddress;
-use crate::schema::clients;
-use crate::schema::vpn_ip_addresses;
+use super::vpn_ip_address::VpnIpAddress;
+use crate::schema::{clients, vpn_ip_addresses};
 use crate::validate::is_ip_in_network;
 
 const CLIENT_CONFIG: &str = r#"[Interface]

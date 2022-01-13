@@ -1,8 +1,8 @@
 //! Module that holds everything that is necessary for the `DnsServer`
 use async_graphql::*;
 
+use super::SingleConnection;
 use crate::diesel::prelude::*;
-use crate::models::SingleConnection;
 use crate::schema::dns_servers;
 
 /// A [`DnsServer`] that is insertable into the database
