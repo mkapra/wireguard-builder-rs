@@ -19,6 +19,10 @@ extern crate diesel;
 extern crate diesel_migrations;
 mod schema;
 
+/// The secret key for JWTs
+#[derive(Clone, Debug)]
+pub struct SecretKey(String);
+
 /// Runs all migrations for the database
 fn run_migrations(db: &Database) {
     let connection = db.get();
@@ -52,11 +56,14 @@ async fn gql_playground() -> HttpResponse {
 
 async fn index(
     schema: web::Data<GrahpQLSchema>,
+    secret_key: web::Data<SecretKey>,
     req: HttpRequest,
     gql_request: GraphQLRequest,
 ) -> GraphQLResponse {
     let mut request = gql_request.into_inner();
-    request = request.data(get_token_from_headers(req.headers()));
+    request = request
+        .data(get_token_from_headers(req.headers()))
+        .data(secret_key.into_inner());
     schema.execute(request).await.into()
 }
 
@@ -64,6 +71,7 @@ async fn index(
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let secret_key = SecretKey(env::var("SECRET_KEY").expect("SECRET_KEY must be set"));
 
     println!("🚀 Server listening on http://localhost:8000");
     HttpServer::new(move || {
@@ -78,6 +86,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .app_data(web::Data::new(create_schema(db)))
+            .app_data(web::Data::new(secret_key.clone()))
             .wrap(cors)
             .service(web::resource("/").guard(guard::Get()).to(gql_playground))
             .service(web::resource("/").guard(guard::Post()).to(index))
