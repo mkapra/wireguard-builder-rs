@@ -6,7 +6,7 @@ use handlebars::Handlebars;
 use super::vpn_ip_address::VpnIpAddress;
 use super::*;
 use crate::schema::{clients, vpn_ip_addresses};
-use crate::validate::is_ip_in_network;
+use crate::validate::{is_ip_in_network, is_keypair_used};
 
 const CLIENT_CONFIG: &str = r#"[Interface]
 PrivateKey = {{clientPrivateKey}}
@@ -247,6 +247,13 @@ impl Client {
                 "Keypair with id {} not found for client",
                 client.keypair_id
             )));
+        }
+        // Check if keypair is already used
+        if is_keypair_used(connection, client.keypair_id) {
+            return Err(Error::new(format!(
+                "Keypair with id {} is already used!",
+                client.keypair_id
+            )))
         }
 
         // Check if vpn network exists
