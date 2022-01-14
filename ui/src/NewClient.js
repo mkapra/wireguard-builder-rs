@@ -17,23 +17,23 @@ const GET_REFERENCES = gql`
     dnsServers {
       id
       name
-      ip_address
+      ipAddress
     }
     vpnNetworks {
       id
       name
-      ip_address
+      ipNetwork
     }
     unusedKeypairs {
       id
-      public_key
+      publicKey
     }
   }
 `;
 
 const CREATE_CLIENT = gql`
-  mutation Mutation($newClient: newClientInput!) {
-    createClient(newClient: $newClient) {
+  mutation Mutation($newClient: InputClient!) {
+    createClient(client: $newClient) {
       id
     }
   }
@@ -81,11 +81,11 @@ const NewClient = ({ setIsOpen }) => {
         newClient: {
           name,
           description,
-          ip_address: ipAddress,
-          keepalive_interval: keepalive,
-          vpn_network: vpnNetwork,
-          keypair,
-          dns_server: dnsServer,
+          ipAddress,
+          keepaliveInterval: keepalive,
+          keypairId: keypair,
+          dnsServerId: dnsServer,
+          vpnNetworkId: vpnNetwork,
         },
       },
     })
@@ -158,7 +158,7 @@ const NewClient = ({ setIsOpen }) => {
           labelName="DNS Server"
           mainField="name"
           options={data.dnsServers}
-          secondField="ip_address"
+          secondField="ipAddress"
           value={dnsServer}
           setValue={setDnsServer}
         />
@@ -167,14 +167,14 @@ const NewClient = ({ setIsOpen }) => {
           labelName="VPN Network"
           mainField="name"
           options={data.vpnNetworks}
-          secondField="ip_address"
+          secondField="ipNetwork"
           value={vpnNetwork}
           setValue={setVpnNetwork}
         />
 
         <SelectInputField
           labelName="Keypair"
-          mainField="public_key"
+          mainField="publicKey"
           options={data.unusedKeypairs}
           value={keypair}
           setValue={setKeypair}

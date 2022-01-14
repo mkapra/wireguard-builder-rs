@@ -9,7 +9,7 @@ import ConfigurationViewer from "./ConfigurationViewer";
 
 const GET_SERVER = gql`
   query Query($id: ID!) {
-    server(id: $id) {
+    server(serverId: $id) {
       name
       config
     }

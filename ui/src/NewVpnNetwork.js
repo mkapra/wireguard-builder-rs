@@ -9,22 +9,8 @@ import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
 
 const CREATE_VPN_NETWORK = gql`
-  mutation Mutation(
-    $name: String!
-    $ipAddress: String!
-    $port: Int!
-    $interface: String!
-    $description: String
-    $subnetmask: Int
-  ) {
-    createVpnNetwork(
-      name: $name
-      ip_address: $ipAddress
-      port: $port
-      interface: $interface
-      description: $description
-      subnetmask: $subnetmask
-    ) {
+  mutation Mutation($newVpnNetwork: InputVpnNetwork!) {
+    createVpnNetwork(vpnNetwork: $newVpnNetwork) {
       id
     }
   }
@@ -45,14 +31,24 @@ const NewVpnNetwork = ({ setIsOpen }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let variables = {
+      name,
+      description,
+      ipNetwork: ipAddress,
+      listenPort: parseInt(port),
+      interfaceName: wgInterface,
+    };
+    if (subnetmask !== undefined && subnetmask !== "" && subnetmask !== null) {
+      variables.subnetmask = parseInt(subnetmask);
+    }
+
+    console.log("SDFSDFSDF", variables);
+
     await createVpnNetwork({
       variables: {
-        name,
-        description,
-        ipAddress: ipAddress,
-        subnetmask: parseInt(subnetmask) || null,
-        port: parseInt(port),
-        interface: wgInterface,
+        newVpnNetwork: {
+          ...variables,
+        },
       },
     })
       .then(() => {

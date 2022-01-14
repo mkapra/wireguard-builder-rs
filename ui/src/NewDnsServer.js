@@ -9,8 +9,8 @@ import FormInputField from "./FormInputField";
 import SubmitButton from "./SubmitButton";
 
 const CREATE_DNS_SERVER = gql`
-  mutation CreateDnsServer($name: String!, $ip: String!, $description: String) {
-    createDnsServer(name: $name, ip: $ip, description: $description) {
+  mutation CreateDnsServer($dnsServer: InputDnsServer!) {
+    createDnsServer(dnsServer: $dnsServer) {
       id
     }
   }
@@ -30,9 +30,11 @@ const NewDnsServer = ({ setIsOpen }) => {
 
     await createDnsServer({
       variables: {
-        name,
-        description,
-        ip: ipAddress,
+        dnsServer: {
+          name,
+          description,
+          ipAddress,
+        },
       },
     })
       .catch((err) => {

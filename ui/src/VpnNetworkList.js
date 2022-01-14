@@ -13,10 +13,10 @@ const GET_VPN_NETWORKS = gql`
       id
       name
       description
-      ip_address
+      ipNetwork
       subnetmask
-      port
-      interface
+      listenPort
+      interfaceName
     }
   }
 `;
@@ -73,7 +73,7 @@ const VpnNetworkList = () => {
                 "ID",
                 "Name",
                 "Description",
-                "IP-Address",
+                "IP-Network",
                 "Subnetmask",
                 "Port",
                 "Interface",

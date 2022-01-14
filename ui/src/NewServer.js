@@ -15,18 +15,18 @@ const GET_REFERENCES = gql`
     vpnNetworks {
       id
       name
-      ip_address
+      ipNetwork
     }
     unusedKeypairs {
       id
-      public_key
+      publicKey
     }
   }
 `;
 
 const CREATE_SERVER = gql`
-  mutation CreateServer($newServer: newServerInput!) {
-    createServer(newServer: $newServer) {
+  mutation CreateServer($newServer: InputServer!) {
+    createServer(server: $newServer) {
       id
     }
   }
@@ -37,8 +37,8 @@ const NewServer = ({ setIsOpen }) => {
   const [description, setDescription] = useState("");
   const [ipAddress, setIpAddress] = useState("");
   const [forwardInterface, setForwardInterface] = useState("");
-  const [vpnNetwork, setVpnNetwork] = useState("");
-  const [keypair, setKeypair] = useState("");
+  const [vpnNetwork, setVpnNetwork] = useState(null);
+  const [keypair, setKeypair] = useState(null);
   const [externalIpAddress, setExternalIpAddress] = useState("");
 
   const { data, loading, error } = useQuery(GET_REFERENCES);
@@ -58,12 +58,6 @@ const NewServer = ({ setIsOpen }) => {
       />
     );
   }
-  if (error) {
-    toast.error("Could not fetch data from API: " + error.message, {
-      toastId: "query-error",
-    });
-    return null;
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,11 +67,11 @@ const NewServer = ({ setIsOpen }) => {
         newServer: {
           name,
           description,
-          external_ip_address: externalIpAddress,
-          ip_address: ipAddress,
-          forward_interface: forwardInterface,
-          vpn_network: vpnNetwork,
-          keypair,
+          externalIpAddress: externalIpAddress,
+          ipAddress: ipAddress,
+          forwardInterface: forwardInterface,
+          vpnNetworkId: vpnNetwork,
+          keypairId: keypair,
         },
       },
     })
@@ -104,6 +98,12 @@ const NewServer = ({ setIsOpen }) => {
       }
     }
   }, [data]);
+  if (error) {
+    toast.error("Could not fetch data from API: " + error.message, {
+      toastId: "query-error",
+    });
+    return null;
+  }
 
   return (
     <Modal setIsOpen={setIsOpen} heading="Create new Server">
@@ -150,17 +150,17 @@ const NewServer = ({ setIsOpen }) => {
         />
 
         <SelectInputField
-          labelName="VPN Network"
+        labelName="VPN Network"
           mainField="name"
           options={data.vpnNetworks}
-          secondField="ip_address"
+          secondField="ipNetwork"
           value={vpnNetwork}
           setValue={setVpnNetwork}
         />
 
         <SelectInputField
           labelName="Keypair"
-          mainField="public_key"
+          mainField="publicKey"
           options={data.unusedKeypairs}
           value={keypair}
           setValue={setKeypair}

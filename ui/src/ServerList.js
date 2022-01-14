@@ -14,12 +14,12 @@ const GET_SERVERS = gql`
       id
       name
       description
-      ip_address
-      forward_interface
+      ipAddress
+      forwardInterface
       keypair {
         id
       }
-      vpn_network {
+      vpnNetwork {
         id
       }
     }
