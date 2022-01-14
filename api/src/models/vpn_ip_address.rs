@@ -30,7 +30,7 @@ impl VpnIpAddress {
     /// # Returns
     /// Returns the created [`VpnIpAddress`] or an error from the database
     pub fn create<'a>(
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
         vpn_network_id: i32,
         ip_address: &'a str,
     ) -> Result<VpnIpAddress> {
@@ -53,7 +53,7 @@ impl VpnIpAddress {
     ///
     /// # Returns
     /// Returns true if the operation was successful or an error
-    pub fn delete<'a>(connection: &SingleConnection, vpn_ip_address_id: i32) -> Result<bool> {
+    pub fn delete<'a>(connection: &DatabaseConnection, vpn_ip_address_id: i32) -> Result<bool> {
         let vpn_ip = Self::get_by_id(connection, vpn_ip_address_id);
         diesel::delete(&vpn_ip)
             .execute(connection)
@@ -69,7 +69,7 @@ impl VpnIpAddress {
     ///
     /// # Panics
     /// Panics if no ip address was found
-    pub fn get_by_id(connection: &SingleConnection, ip_id: i32) -> VpnIpAddress {
+    pub fn get_by_id(connection: &DatabaseConnection, ip_id: i32) -> VpnIpAddress {
         use crate::schema::vpn_ip_addresses::dsl::*;
         vpn_ip_addresses
             .filter(id.eq(ip_id))

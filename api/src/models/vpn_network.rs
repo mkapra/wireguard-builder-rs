@@ -80,7 +80,7 @@ impl VpnNetwork {
     /// # Returns
     /// Returns the created [`VpnNetwork`] or an error that was thrown by the database
     pub fn create(
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
         vpn_network: &InputVpnNetwork,
     ) -> Result<VpnNetwork> {
         let new_vpn_network = NewVpnNetwork {
@@ -109,7 +109,7 @@ impl VpnNetwork {
     /// The update may return an error if the new values violate unique constraints in the database. Otherwise the
     /// updated vpn network is returned.
     pub fn update(
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
         net_id: i32,
         vpn_network: &InputVpnNetwork,
     ) -> Result<VpnNetwork> {
@@ -143,7 +143,7 @@ impl VpnNetwork {
     ///
     /// # Returns
     /// Returns true if the delete action was successful an error otherwise
-    pub fn delete(connection: &SingleConnection, net_id: i32) -> Result<bool> {
+    pub fn delete(connection: &DatabaseConnection, net_id: i32) -> Result<bool> {
         match Self::get_by_id(connection, net_id) {
             Some(net) => match diesel::delete(&net).execute(connection) {
                 Ok(_) => Ok(true),
@@ -164,7 +164,7 @@ impl VpnNetwork {
     ///
     /// # Returns
     /// If a vpn network was found a [`Option::Some`] will be returned [`Option::None`] otherwise
-    pub fn get_by_id(connection: &SingleConnection, net_id: i32) -> Option<VpnNetwork> {
+    pub fn get_by_id(connection: &DatabaseConnection, net_id: i32) -> Option<VpnNetwork> {
         use crate::schema::vpn_networks::dsl::*;
 
         vpn_networks
@@ -177,7 +177,7 @@ impl VpnNetwork {
     /// Returns the `Client`s that are associated with the [`VpnNetwork`]
     pub fn get_associated_clients(
         &self,
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
     ) -> Option<Vec<QueryableClient>> {
         use crate::schema::clients::dsl::*;
 
@@ -199,7 +199,10 @@ impl VpnNetwork {
     }
 
     /// Returns the `Server` that is associated with the [`VpnNetwork`]
-    pub fn get_associated_server(&self, connection: &SingleConnection) -> Option<QueryableServer> {
+    pub fn get_associated_server(
+        &self,
+        connection: &DatabaseConnection,
+    ) -> Option<QueryableServer> {
         use crate::schema::servers::dsl::*;
 
         match servers

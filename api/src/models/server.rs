@@ -206,7 +206,10 @@ impl Server {
     /// # Returns
     /// Returns the [`Server`] if the operation was successful. If validation of the input parameters fails an
     /// error is returned.
-    pub fn create(connection: &SingleConnection, server: &InputServer) -> Result<QueryableServer> {
+    pub fn create(
+        connection: &DatabaseConnection,
+        server: &InputServer,
+    ) -> Result<QueryableServer> {
         // Check if keypair exists
         if let Err(_) = Keypair::get_by_id(connection, server.keypair_id) {
             return Err(Error::new(format!(
@@ -271,7 +274,7 @@ impl Server {
     }
 
     /// Deletes the [`Server`] with the given id from the database
-    pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<bool> {
+    pub fn delete(connection: &DatabaseConnection, server_id: i32) -> Result<bool> {
         let server = Self::get_by_id(connection, server_id)?;
         VpnIpAddress::delete(connection, server.vpn_ip_address_id)?;
         Keypair::delete(connection, server.keypair_id)?;
@@ -282,7 +285,7 @@ impl Server {
     }
 
     /// Returns all the ids of keypairs that are used by a server
-    pub fn get_keypair_ids(connection: &SingleConnection) -> Result<Vec<i32>> {
+    pub fn get_keypair_ids(connection: &DatabaseConnection) -> Result<Vec<i32>> {
         use crate::schema::servers::dsl::*;
         Ok(servers
             .load::<QueryableServer>(connection)
@@ -300,7 +303,7 @@ impl Server {
     ///
     /// # Panics
     /// Panics if no `Server` was found
-    fn get_by_id(connection: &SingleConnection, server_id: i32) -> Result<QueryableServer> {
+    fn get_by_id(connection: &DatabaseConnection, server_id: i32) -> Result<QueryableServer> {
         use crate::schema::servers::dsl::*;
         servers
             .filter(id.eq(server_id))

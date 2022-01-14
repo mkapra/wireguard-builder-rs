@@ -4,7 +4,7 @@ use diesel::{Insertable, Queryable};
 use std::process::{Command, Stdio};
 use std::{io::Write, str};
 
-use super::SingleConnection;
+use crate::database::DatabaseConnection;
 use crate::diesel::prelude::*;
 use crate::schema::keypairs;
 
@@ -41,7 +41,7 @@ impl Keypair {
     // # Panics
     // Panics if an error occured while saving to the database.
     pub fn create<'a>(
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
         public_key: &'a str,
         private_key: &'a str,
     ) -> Keypair {
@@ -64,7 +64,7 @@ impl Keypair {
     ///
     /// # Returns
     /// Returns true if the operation was successful or an error
-    pub fn delete(connection: &SingleConnection, keypair_id: i32) -> Result<bool> {
+    pub fn delete(connection: &DatabaseConnection, keypair_id: i32) -> Result<bool> {
         let keypair = Keypair::get_by_id(connection, keypair_id)?;
         diesel::delete(&keypair)
             .execute(connection)
@@ -118,7 +118,7 @@ impl Keypair {
     ///
     /// # Returns
     /// Returns the [`Keypair`] or an `Result::Error` if the [`Keypair`] does not exist or the query failed
-    pub fn get_by_id(connection: &SingleConnection, keypair_id: i32) -> Result<Keypair> {
+    pub fn get_by_id(connection: &DatabaseConnection, keypair_id: i32) -> Result<Keypair> {
         use crate::schema::keypairs::dsl::*;
 
         keypairs

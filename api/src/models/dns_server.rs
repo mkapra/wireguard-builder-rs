@@ -1,7 +1,7 @@
 //! Module that holds everything that is necessary for the `DnsServer`
 use async_graphql::*;
 
-use super::SingleConnection;
+use crate::database::DatabaseConnection;
 use crate::diesel::prelude::*;
 use crate::schema::dns_servers;
 
@@ -46,7 +46,10 @@ impl DnsServer {
     ///
     /// * Duplicate `name`
     /// * Duplicate `ip_address`
-    pub fn create(connection: &SingleConnection, dns_server: &InputDnsServer) -> Result<DnsServer> {
+    pub fn create(
+        connection: &DatabaseConnection,
+        dns_server: &InputDnsServer,
+    ) -> Result<DnsServer> {
         let new_dns_server = NewDnsServer {
             name: &dns_server.name,
             description: dns_server.description.as_deref(),
@@ -70,7 +73,7 @@ impl DnsServer {
     /// The update may return an error if the new values violate uniqe constraints in the database. Otherwise the
     /// updated [`DnsServer`] is returned.
     pub fn update(
-        connection: &SingleConnection,
+        connection: &DatabaseConnection,
         server_id: i32,
         dns_server: &InputDnsServer,
     ) -> Result<DnsServer> {
@@ -103,7 +106,7 @@ impl DnsServer {
     /// # Returns
     /// An empty result if the element was deleted or an error if the [`DnsServer`] was not found or could not be
     /// deleted
-    pub fn delete(connection: &SingleConnection, server_id: i32) -> Result<()> {
+    pub fn delete(connection: &DatabaseConnection, server_id: i32) -> Result<()> {
         match Self::get_by_id(connection, server_id) {
             Some(server) => {
                 if let Err(e) = diesel::delete(&server).execute(connection) {
@@ -127,7 +130,7 @@ impl DnsServer {
     ///
     /// # Returns
     /// The [`DnsServer`] if found or [`Option::None`]
-    pub fn get_by_id(connection: &SingleConnection, server_id: i32) -> Option<DnsServer> {
+    pub fn get_by_id(connection: &DatabaseConnection, server_id: i32) -> Option<DnsServer> {
         use crate::schema::dns_servers::dsl::*;
 
         let mut servers = dns_servers

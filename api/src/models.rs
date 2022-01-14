@@ -1,10 +1,7 @@
 //! The GraphQL schema
 use async_graphql::{Context, *};
-use diesel::{
-    r2d2::{ConnectionManager, Pool, PooledConnection},
-    PgConnection,
-};
 
+use crate::database::{Database, DatabaseConnection};
 use crate::diesel::prelude::*;
 
 mod keypair;
@@ -23,10 +20,6 @@ use server::{InputServer, QueryableServer};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
-/// Represents a pool of connections to the database
-pub type DatabaseConnection = Pool<ConnectionManager<PgConnection>>;
-/// Represents a single connection to the database
-pub type SingleConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
 /// Creates a new schema with a connection pool for communicating with the database as context
 ///
@@ -35,9 +28,9 @@ pub type SingleConnection = PooledConnection<ConnectionManager<PgConnection>>;
 ///
 /// # Returns
 /// Returns a schema that can be used by the web framework
-pub fn create_schema(connection: DatabaseConnection) -> GrahpQLSchema {
+pub fn create_schema(db: Database) -> GrahpQLSchema {
     Schema::build(QueryRoot, Mutation, EmptySubscription)
-        .data(connection)
+        .data(db)
         .finish()
 }
 
@@ -196,9 +189,8 @@ impl Mutation {
 ///
 /// # Arguments
 /// * `ctx` - The context of the graphql request that includes the database connection pool
-fn create_connection(ctx: &Context<'_>) -> SingleConnection {
-    ctx.data::<DatabaseConnection>()
+fn create_connection(ctx: &Context<'_>) -> DatabaseConnection {
+    ctx.data::<Database>()
         .expect("Could not retrieve connection from context")
         .get()
-        .expect("Recieved no connection from pool")
 }
