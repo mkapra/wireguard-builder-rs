@@ -303,7 +303,7 @@ impl Server {
     ///
     /// # Panics
     /// Panics if no `Server` was found
-    fn get_by_id(connection: &DatabaseConnection, server_id: i32) -> Result<QueryableServer> {
+    pub fn get_by_id(connection: &DatabaseConnection, server_id: i32) -> Result<QueryableServer> {
         use crate::schema::servers::dsl::*;
         servers
             .filter(id.eq(server_id))
