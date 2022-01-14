@@ -110,7 +110,7 @@
     <span class="doccomment">/// # Returns</span>
     <span class="doccomment">/// Returns the created [`VpnIpAddress`] or an error from the database</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>,
+        <span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>,
         <span class="ident">vpn_network_id</span>: <span class="ident">i32</span>,
         <span class="ident">ip_address</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">VpnIpAddress</span><span class="op">&gt;</span> {
@@ -133,7 +133,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Returns</span>
     <span class="doccomment">/// Returns true if the operation was successful or an error</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>, <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">vpn_ip</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::get_by_id</span>(<span class="ident">connection</span>, <span class="ident">vpn_ip_address_id</span>);
         <span class="ident">diesel::delete</span>(<span class="kw-2">&amp;</span><span class="ident">vpn_ip</span>)
             .<span class="ident">execute</span>(<span class="ident">connection</span>)
@@ -149,7 +149,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if no ip address was found</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">ip_id</span>: <span class="ident">i32</span>) -&gt; <span class="ident">VpnIpAddress</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>, <span class="ident">ip_id</span>: <span class="ident">i32</span>) -&gt; <span class="ident">VpnIpAddress</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::vpn_ip_addresses::dsl</span>::<span class="kw-2">*</span>;
         <span class="ident">vpn_ip_addresses</span>
             .<span class="ident">filter</span>(<span class="ident">id</span>.<span class="ident">eq</span>(<span class="ident">ip_id</span>))

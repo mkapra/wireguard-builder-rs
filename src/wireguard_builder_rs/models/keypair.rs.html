@@ -139,7 +139,7 @@
 <span class="kw">use</span> <span class="ident">std::process</span>::{<span class="ident">Command</span>, <span class="ident">Stdio</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io::Write</span>, <span class="ident">str</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::SingleConnection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::DatabaseConnection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::diesel::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::keypairs</span>;
 
@@ -176,7 +176,7 @@
     <span class="comment">// # Panics</span>
     <span class="comment">// Panics if an error occured while saving to the database.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>,
+        <span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>,
         <span class="ident">public_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
         <span class="ident">private_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
     ) -&gt; <span class="ident">Keypair</span> {
@@ -199,7 +199,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Returns</span>
     <span class="doccomment">/// Returns true if the operation was successful or an error</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">keypair</span> <span class="op">=</span> <span class="ident">Keypair::get_by_id</span>(<span class="ident">connection</span>, <span class="ident">keypair_id</span>)<span class="question-mark">?</span>;
         <span class="ident">diesel::delete</span>(<span class="kw-2">&amp;</span><span class="ident">keypair</span>)
             .<span class="ident">execute</span>(<span class="ident">connection</span>)
@@ -253,7 +253,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Returns</span>
     <span class="doccomment">/// Returns the [`Keypair`] or an `Result::Error` if the [`Keypair`] does not exist or the query failed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Keypair</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Keypair</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::schema::keypairs::dsl</span>::<span class="kw-2">*</span>;
 
         <span class="ident">keypairs</span>

@@ -51,11 +51,13 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
+<span id="53">53</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Provides some functions for validating content</span>
 <span class="kw">use</span> <span class="ident">ipaddress::IPAddress</span>;
 <span class="kw">use</span> <span class="ident">std::net::Ipv4Addr</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models</span>::{<span class="ident">Client</span>, <span class="ident">Server</span>, <span class="ident">SingleConnection</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::DatabaseConnection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models</span>::{<span class="ident">Client</span>, <span class="ident">Server</span>};
 
 <span class="doccomment">/// Validates if an ip address is in the given network or not</span>
 <span class="doccomment">///</span>
@@ -73,7 +75,7 @@
 <span class="doccomment">/// # Arguments</span>
 <span class="doccomment">/// * `connection` - A connection to the database</span>
 <span class="doccomment">/// * `keypair_id` - The id of the `Keypair` that should be checked</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keypair_used</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keypair_used</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_keypairs</span> <span class="op">=</span>
         <span class="ident">Client::get_keypair_ids</span>(<span class="ident">connection</span>).<span class="ident">expect</span>(<span class="string">&quot;Error while querying the database&quot;</span>);
     <span class="ident">used_keypairs</span>

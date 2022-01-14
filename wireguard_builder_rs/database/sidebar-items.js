@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Database","Wrapper for a database pool"]],"type":[["DatabaseConnection","Represents a connection to the database"],["DatabasePool","Represents a connection pool for the database"]]});
