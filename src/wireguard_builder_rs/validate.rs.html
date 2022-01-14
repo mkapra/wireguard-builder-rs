@@ -30,14 +30,56 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Provides some functions for validating content</span>
 <span class="kw">use</span> <span class="ident">ipaddress::IPAddress</span>;
 <span class="kw">use</span> <span class="ident">std::net::Ipv4Addr</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models</span>::{<span class="ident">Client</span>, <span class="ident">Server</span>, <span class="ident">SingleConnection</span>};
+
 <span class="doccomment">/// Validates if an ip address is in the given network or not</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `ip_network` - The ip network in that the ip addresss should be in</span>
+<span class="doccomment">/// * `subnetmask` - The subnetmask of the `ip_network` in CIDR format</span>
+<span class="doccomment">/// * `ip_address` - The ip address that should be validated</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ip_in_network</span>(<span class="ident">ip_network</span>: <span class="ident">Ipv4Addr</span>, <span class="ident">subnetmask</span>: <span class="ident">i32</span>, <span class="ident">ip_address</span>: <span class="ident">Ipv4Addr</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">ip_address</span> <span class="op">=</span> <span class="ident">IPAddress::parse</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">ip_address</span>, <span class="ident">subnetmask</span>)).<span class="ident">unwrap</span>();
     <span class="ident">ip_address</span>.<span class="ident">network</span>().<span class="ident">to_s</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Ipv4Addr</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">ip_network</span>
+}
+
+<span class="doccomment">/// Verifies if the given id of a `Keypair` is already used by another `Client` or `Server`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `connection` - A connection to the database</span>
+<span class="doccomment">/// * `keypair_id` - The id of the `Keypair` that should be checked</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keypair_used</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">SingleConnection</span>, <span class="ident">keypair_id</span>: <span class="ident">i32</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_keypairs</span> <span class="op">=</span>
+        <span class="ident">Client::get_keypair_ids</span>(<span class="ident">connection</span>).<span class="ident">expect</span>(<span class="string">&quot;Error while querying the database&quot;</span>);
+    <span class="ident">used_keypairs</span>
+        .<span class="ident">extend</span>(<span class="ident">Server::get_keypair_ids</span>(<span class="ident">connection</span>).<span class="ident">expect</span>(<span class="string">&quot;Error while querying the database&quot;</span>));
+
+    <span class="ident">used_keypairs</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">keypair_id</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

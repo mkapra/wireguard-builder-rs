@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_ip_in_network","Validates if an ip address is in the given network or not"]]});
+initSidebarItems({"fn":[["is_ip_in_network","Validates if an ip address is in the given network or not"],["is_keypair_used","Verifies if the given id of a `Keypair` is already used by another `Client` or `Server`"]]});

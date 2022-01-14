@@ -201,6 +201,8 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The GraphQL schema</span>
 <span class="kw">use</span> <span class="ident">async_graphql</span>::{<span class="ident">Context</span>, <span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="ident">diesel</span>::{
@@ -217,10 +219,12 @@
 <span class="kw">mod</span> <span class="ident">vpn_network</span>;
 <span class="kw">use</span> <span class="ident">vpn_network</span>::{<span class="ident">InputVpnNetwork</span>, <span class="ident">VpnNetwork</span>};
 <span class="kw">mod</span> <span class="ident">client</span>;
-<span class="kw">use</span> <span class="ident">client</span>::{<span class="ident">Client</span>, <span class="ident">InputClient</span>, <span class="ident">QueryableClient</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">client::Client</span>;
+<span class="kw">use</span> <span class="ident">client</span>::{<span class="ident">InputClient</span>, <span class="ident">QueryableClient</span>};
 <span class="kw">mod</span> <span class="ident">server</span>;
 <span class="kw">mod</span> <span class="ident">vpn_ip_address</span>;
-<span class="kw">use</span> <span class="ident">server</span>::{<span class="ident">InputServer</span>, <span class="ident">QueryableServer</span>, <span class="ident">Server</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">server::Server</span>;
+<span class="kw">use</span> <span class="ident">server</span>::{<span class="ident">InputServer</span>, <span class="ident">QueryableServer</span>};
 
 <span class="doccomment">/// Represents the schema that is created by [`create_schema()`]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GrahpQLSchema</span> <span class="op">=</span> <span class="ident">Schema</span><span class="op">&lt;</span><span class="ident">QueryRoot</span>, <span class="ident">Mutation</span>, <span class="ident">EmptySubscription</span><span class="op">&gt;</span>;
