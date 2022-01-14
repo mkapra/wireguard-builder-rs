@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::http::header::{self, HeaderMap};
+use actix_web::http::header::HeaderMap;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer};
 
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
