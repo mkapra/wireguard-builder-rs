@@ -219,7 +219,7 @@ impl Server {
             return Err(Error::new(format!(
                 "Keypair with id {} is already used!",
                 server.keypair_id
-            )))
+            )));
         }
 
         // Check if vpn network exists
