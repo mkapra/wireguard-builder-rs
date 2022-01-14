@@ -14,14 +14,14 @@ const GET_CLIENTS = gql`
       id
       name
       description
-      dns_server {
+      dnsServer {
         id
       }
-      vpn_network {
+      vpnNetwork {
         id
       }
-      ip_address
-      keepalive_interval
+      ipAddress
+      keepaliveInterval
       keypair {
         id
       }
