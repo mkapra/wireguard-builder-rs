@@ -13,7 +13,7 @@ const GET_DNS_SERVERS = gql`
       id
       name
       description
-      ip_address
+      ipAddress
     }
   }
 `;
