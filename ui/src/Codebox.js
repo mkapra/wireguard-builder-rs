@@ -14,7 +14,7 @@ const Codebox = ({ value }) => {
           });
         }}
       >
-        <div className="bg-gray-200 p-4 whitespace-pre-line relative">
+        <div className="bg-gray-200 p-4 whitespace-pre-line relative pb-12">
           <p className="font-mono">{value}</p>
           <p className="absolute right-0 bottom-0 p-2 bg-gray-300 rounded-tl">
             Click in box to copy the configuration
