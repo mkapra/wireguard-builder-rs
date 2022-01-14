@@ -1,7 +1,7 @@
 use actix_cors::Cors;
 use actix_web::http::header::HeaderMap;
-use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer};
 use actix_web::middleware::Logger;
+use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer};
 
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
@@ -18,8 +18,8 @@ mod validate;
 extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
-mod schema;
 mod crypto;
+mod schema;
 use crypto::SecretKey;
 
 /// Runs all migrations for the database

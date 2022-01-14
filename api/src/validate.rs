@@ -5,10 +5,10 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 
-use crate::Token;
 use crate::crypto::{Claims, SecretKey};
 use crate::database::DatabaseConnection;
 use crate::models::{Client, Server};
+use crate::Token;
 
 /// Validates if an ip address is in the given network or not
 ///
@@ -51,11 +51,13 @@ pub struct UserGuard;
 #[async_trait::async_trait]
 impl Guard for UserGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        let secret_key = ctx.data::<Arc<SecretKey>>().expect("Could not find secret key");
+        let secret_key = ctx
+            .data::<Arc<SecretKey>>()
+            .expect("Could not find secret key");
         if let Ok(token) = ctx.data::<Token>() {
             if let Some(t) = token.get_token() {
                 if is_valid_token(secret_key, &t) {
-                    return Ok(())
+                    return Ok(());
                 }
             }
         }

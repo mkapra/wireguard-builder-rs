@@ -1,7 +1,7 @@
 //! Module that represents the crypto part in this crate
 use std::fmt::Display;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::models::JwtUser;
 
@@ -33,7 +33,7 @@ impl Claims {
         Claims {
             sub: user.id.to_string(),
             exp: expiration as usize,
-            user: user.clone()
+            user: user.clone(),
         }
     }
 }

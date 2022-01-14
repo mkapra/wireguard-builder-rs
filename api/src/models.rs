@@ -22,7 +22,7 @@ mod vpn_ip_address;
 pub use server::Server;
 use server::{InputServer, QueryableServer};
 mod user;
-pub use user::{User, JwtUser};
+pub use user::{JwtUser, User};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
