@@ -14,10 +14,12 @@ use dns_server::{DnsServer, InputDnsServer};
 mod vpn_network;
 use vpn_network::{InputVpnNetwork, VpnNetwork};
 mod client;
-use client::{Client, InputClient, QueryableClient};
+pub use client::Client;
+use client::{InputClient, QueryableClient};
 mod server;
 mod vpn_ip_address;
-use server::{InputServer, QueryableServer, Server};
+pub use server::Server;
+use server::{InputServer, QueryableServer};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
