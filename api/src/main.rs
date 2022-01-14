@@ -1,7 +1,10 @@
+use actix_cors::Cors;
+use actix_web::http::header::{self, HeaderMap};
+use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer};
+
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
+use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use dotenv::dotenv;
-use rocket::{response::content, routes, State};
 use std::env;
 
 mod database;
@@ -22,39 +25,64 @@ fn run_migrations(db: &Database) {
     embedded_migrations::run(&connection).expect("Migrations could not be applied successfully");
 }
 
-/// Playground for making graphql requests
-#[rocket::get("/")]
-fn graphql_playground() -> content::Html<String> {
-    content::Html(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
-}
+/// The `Token` that was sent by the client for authentication
+#[derive(Debug)]
+pub struct Token(Option<String>);
 
-/// Endpoint for all graphql queries
-#[rocket::get("/graphql?<query..>")]
-async fn graphql_query(schema: &State<GrahpQLSchema>, query: GraphQLQuery) -> GraphQLResponse {
-    query.execute(schema).await
-}
-
-/// Endpoint for all graphql requests
-#[rocket::post("/graphql", data = "<request>", format = "application/json")]
-async fn graphql_request(
-    schema: &State<GrahpQLSchema>,
-    request: GraphQLRequest,
-) -> GraphQLResponse {
-    request.execute(schema).await
+/// Retrieves the `Token` Header from the request and returns a `Token` object that can be passed as context
+fn get_token_from_headers(headers: &HeaderMap) -> Token {
+    match headers.get("Token") {
+        Some(token_value) => Token(Some(
+            token_value
+                .to_str()
+                .expect("Could not parse token to string")
+                .to_string(),
+        )),
+        None => Token(None),
+    }
 }
 
 embed_migrations!();
 
-/// Entrypoint of this binary crate that initializes the webserver
-#[rocket::launch]
-fn rocket() -> _ {
+async fn gql_playground() -> HttpResponse {
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(playground_source(GraphQLPlaygroundConfig::new("/")))
+}
+
+async fn index(
+    schema: web::Data<GrahpQLSchema>,
+    req: HttpRequest,
+    gql_request: GraphQLRequest,
+) -> GraphQLResponse {
+    let mut request = gql_request.into_inner();
+    request = request.data(get_token_from_headers(req.headers()));
+    schema.execute(request).await.into()
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let db = Database::new(&database_url);
-    run_migrations(&db);
 
-    rocket::build().manage(create_schema(db)).mount(
-        "/",
-        routes![graphql_query, graphql_request, graphql_playground],
-    )
+    println!("🚀 Server listening on http://localhost:8000");
+    HttpServer::new(move || {
+        let db = Database::new(&database_url);
+        run_migrations(&db);
+
+        let cors = Cors::permissive();
+        // .allowed_methods(vec!["GET", "POST"])
+        // .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+        // .allowed_header(header::CONTENT_TYPE)
+        // .max_age(3600);
+
+        App::new()
+            .app_data(web::Data::new(create_schema(db)))
+            .wrap(cors)
+            .service(web::resource("/").guard(guard::Get()).to(gql_playground))
+            .service(web::resource("/").guard(guard::Post()).to(index))
+    })
+    .bind("127.0.0.1:8000")?
+    .run()
+    .await
 }
