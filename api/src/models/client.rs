@@ -213,7 +213,7 @@ impl Client {
     /// # Arguments
     /// * `connection` - A connection to the database
     /// * `id` - The id of the client that should be deleted
-    pub fn delete(connection: &SingleConnection, id: i32) -> Result<bool> {
+    pub fn delete(connection: &DatabaseConnection, id: i32) -> Result<bool> {
         let client = Client::get_by_id(connection, id)?;
         VpnIpAddress::delete(connection, client.vpn_ip_address_id)?;
         Keypair::delete(connection, client.keypair_id)?;
@@ -232,7 +232,10 @@ impl Client {
     /// # Returns
     /// Returns [`Result::Ok`] if the operation was a success. If validation of the input parameters fails an
     /// [`Result::Error`] is returned.
-    pub fn create(connection: &SingleConnection, client: &InputClient) -> Result<QueryableClient> {
+    pub fn create(
+        connection: &DatabaseConnection,
+        client: &InputClient,
+    ) -> Result<QueryableClient> {
         // Check if dns server exists
         if DnsServer::get_by_id(connection, client.dns_server_id).is_none() {
             return Err(Error::new(format!(
@@ -306,7 +309,7 @@ impl Client {
     }
 
     /// Returns all the ids of keypairs that are used by a client
-    pub fn get_keypair_ids(connection: &SingleConnection) -> Result<Vec<i32>> {
+    pub fn get_keypair_ids(connection: &DatabaseConnection) -> Result<Vec<i32>> {
         use crate::schema::clients::dsl::*;
         Ok(clients
             .load::<QueryableClient>(connection)
@@ -324,7 +327,7 @@ impl Client {
     ///
     /// # Panics
     /// Panics if no client was found
-    fn get_by_id(connection: &SingleConnection, client_id: i32) -> Result<QueryableClient> {
+    fn get_by_id(connection: &DatabaseConnection, client_id: i32) -> Result<QueryableClient> {
         use crate::schema::clients::dsl::*;
         clients
             .filter(id.eq(client_id))

@@ -1,12 +1,13 @@
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
-use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use rocket::{response::content, routes, State};
 use std::env;
 
+mod database;
+use database::Database;
 mod models;
-use models::{create_schema, DatabaseConnection, GrahpQLSchema};
+use models::{create_schema, GrahpQLSchema};
 mod validate;
 
 #[macro_use]
@@ -15,13 +16,10 @@ extern crate diesel;
 extern crate diesel_migrations;
 mod schema;
 
-/// Creates a new pool for connecting to the database
-fn establish_connection() -> DatabaseConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = ConnectionManager::new(&database_url);
-    Pool::new(manager).expect("Could not connect to database")
+/// Runs all migrations for the database
+fn run_migrations(db: &Database) {
+    let connection = db.get();
+    embedded_migrations::run(&connection).expect("Migrations could not be applied successfully");
 }
 
 /// Playground for making graphql requests
@@ -50,16 +48,13 @@ embed_migrations!();
 /// Entrypoint of this binary crate that initializes the webserver
 #[rocket::launch]
 fn rocket() -> _ {
-    let db_connection_pool = establish_connection();
-    let connection = db_connection_pool
-        .get()
-        .expect("Recieved no connection from pool");
-    embedded_migrations::run(&connection).expect("Migrations could not be applied successfully");
+    dotenv().ok();
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let db = Database::new(&database_url);
+    run_migrations(&db);
 
-    rocket::build()
-        .manage(create_schema(db_connection_pool))
-        .mount(
-            "/",
-            routes![graphql_query, graphql_request, graphql_playground],
-        )
+    rocket::build().manage(create_schema(db)).mount(
+        "/",
+        routes![graphql_query, graphql_request, graphql_playground],
+    )
 }

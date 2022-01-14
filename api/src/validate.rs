@@ -2,7 +2,8 @@
 use ipaddress::IPAddress;
 use std::net::Ipv4Addr;
 
-use crate::models::{Client, Server, SingleConnection};
+use crate::database::DatabaseConnection;
+use crate::models::{Client, Server};
 
 /// Validates if an ip address is in the given network or not
 ///
@@ -20,7 +21,7 @@ pub fn is_ip_in_network(ip_network: Ipv4Addr, subnetmask: i32, ip_address: Ipv4A
 /// # Arguments
 /// * `connection` - A connection to the database
 /// * `keypair_id` - The id of the `Keypair` that should be checked
-pub fn is_keypair_used(connection: &SingleConnection, keypair_id: i32) -> bool {
+pub fn is_keypair_used(connection: &DatabaseConnection, keypair_id: i32) -> bool {
     let mut used_keypairs =
         Client::get_keypair_ids(connection).expect("Error while querying the database");
     used_keypairs
