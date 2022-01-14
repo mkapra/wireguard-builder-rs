@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::http::header::HeaderMap;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::middleware::Logger;
 
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
@@ -18,10 +19,8 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 mod schema;
-
-/// The secret key for JWTs
-#[derive(Clone, Debug)]
-pub struct SecretKey(String);
+mod crypto;
+use crypto::SecretKey;
 
 /// Runs all migrations for the database
 fn run_migrations(db: &Database) {
@@ -73,6 +72,8 @@ async fn main() -> std::io::Result<()> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let secret_key = SecretKey(env::var("SECRET_KEY").expect("SECRET_KEY must be set"));
 
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
     println!("🚀 Server listening on http://localhost:8000");
     HttpServer::new(move || {
         let db = Database::new(&database_url);
@@ -88,6 +89,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(create_schema(db)))
             .app_data(web::Data::new(secret_key.clone()))
             .wrap(cors)
+            .wrap(Logger::new("%a %{User-Agent}i Code(%s) URL(%U)"))
             .service(web::resource("/").guard(guard::Get()).to(gql_playground))
             .service(web::resource("/").guard(guard::Post()).to(index))
     })

@@ -1,6 +1,9 @@
 //! The GraphQL schema
 use async_graphql::{Context, *};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use std::sync::Arc;
 
+use crate::crypto::{Claims, SecretKey};
 use crate::database::{Database, DatabaseConnection};
 use crate::diesel::prelude::*;
 
@@ -17,6 +20,8 @@ mod server;
 mod vpn_ip_address;
 pub use server::Server;
 use server::{InputServer, QueryableServer};
+mod user;
+pub use user::{User, JwtUser};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -125,6 +130,22 @@ impl QueryRoot {
             .map(Server::from)
             .collect()
     }
+
+    //// Validates the given token
+    async fn validate_token(&self, ctx: &Context<'_>, token: String) -> Result<bool> {
+        let secret_key = ctx.data::<Arc<SecretKey>>()?;
+
+        decode::<Claims>(
+            &token,
+            &DecodingKey::from_secret(secret_key.to_string().as_bytes()),
+            &Validation::new(Algorithm::HS256),
+        )
+        .map_err(|_| {
+            Error::new("Token inavlid")
+        })?;
+
+        Ok(true)
+    }
 }
 
 /// The root of the mutation type
@@ -208,6 +229,22 @@ impl Mutation {
     /// Deletes a server
     async fn delete_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<bool> {
         Server::delete(&create_connection(ctx), server_id)
+    }
+
+    /// Endpoint for retrieving a JWT that is necessary for the other requests
+    async fn login(&self, ctx: &Context<'_>, username: String, password: String) -> Result<String> {
+        let user = User::get_by_name(&create_connection(ctx), username)?;
+        let verify_password = bcrypt::verify(password, &user.password).map_err(Error::from)?;
+        if !verify_password {
+            return Err(Error::new("Wrong username or password"));
+        }
+
+        let secret_key = ctx.data::<Arc<SecretKey>>()?;
+        Ok(encode(
+            &Header::default(),
+            &Claims::new(&user.into()),
+            &EncodingKey::from_secret(secret_key.to_string().as_bytes()),
+        )?)
     }
 }
 
