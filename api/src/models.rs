@@ -70,12 +70,31 @@ impl QueryRoot {
             .unwrap()
     }
 
+    /// Returns the vpn network for the given id
+    async fn vpn_network<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        vpn_network_id: i32,
+    ) -> Option<VpnNetwork> {
+        VpnNetwork::get_by_id(&create_connection(ctx), vpn_network_id)
+    }
+
     /// Returns all the vpn networks from the database
     async fn vpn_networks<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<VpnNetwork> {
         use crate::schema::vpn_networks::dsl::*;
         vpn_networks
             .load::<VpnNetwork>(&create_connection(ctx))
             .unwrap()
+    }
+
+    /// Returns the client with the specified id
+    async fn client(&self, ctx: &Context<'_>, client_id: i32) -> Option<Client> {
+        use crate::schema::clients::dsl::*;
+        clients
+            .filter(id.eq(client_id))
+            .first::<QueryableClient>(&create_connection(ctx))
+            .ok()
+            .map(Client::from)
     }
 
     /// Returns all the clients from the database
@@ -87,6 +106,13 @@ impl QueryRoot {
             .into_iter()
             .map(Client::from)
             .collect()
+    }
+
+    /// Returns the server with the given id
+    async fn server(&self, ctx: &Context<'_>, server_id: i32) -> Option<Server> {
+        Server::get_by_id(&create_connection(ctx), server_id)
+            .ok()
+            .map(Server::from)
     }
 
     /// Returns all the servers from the database
