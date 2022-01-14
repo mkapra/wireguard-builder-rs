@@ -1,11 +1,12 @@
 //! The GraphQL schema
 use async_graphql::{Context, *};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use std::sync::Arc;
 
 use crate::crypto::{Claims, SecretKey};
 use crate::database::{Database, DatabaseConnection};
 use crate::diesel::prelude::*;
+use crate::validate::{is_valid_token, UserGuard};
 
 mod keypair;
 use keypair::Keypair;
@@ -45,12 +46,14 @@ pub struct QueryRoot;
 #[Object]
 impl QueryRoot {
     /// Returns all the keypairs from the database
+    #[graphql(guard = "UserGuard")]
     async fn keypairs(&self, ctx: &Context<'_>) -> Vec<Keypair> {
         use crate::schema::keypairs::dsl::*;
         keypairs.load::<Keypair>(&create_connection(ctx)).unwrap()
     }
 
     /// Returns all unused keypairs
+    #[graphql(guard = "UserGuard")]
     async fn unused_keypairs(&self, ctx: &Context<'_>) -> Vec<Keypair> {
         use crate::schema::keypairs::dsl::*;
 
@@ -68,6 +71,7 @@ impl QueryRoot {
     }
 
     /// Returns all the dns servers from the database
+    #[graphql(guard = "UserGuard")]
     async fn dns_servers(&self, ctx: &Context<'_>) -> Vec<DnsServer> {
         use crate::schema::dns_servers::dsl::*;
         dns_servers
@@ -76,6 +80,7 @@ impl QueryRoot {
     }
 
     /// Returns the vpn network for the given id
+    #[graphql(guard = "UserGuard")]
     async fn vpn_network<'ctx>(
         &self,
         ctx: &Context<'ctx>,
@@ -85,6 +90,7 @@ impl QueryRoot {
     }
 
     /// Returns all the vpn networks from the database
+    #[graphql(guard = "UserGuard")]
     async fn vpn_networks<'ctx>(&self, ctx: &Context<'ctx>) -> Vec<VpnNetwork> {
         use crate::schema::vpn_networks::dsl::*;
         vpn_networks
@@ -93,6 +99,7 @@ impl QueryRoot {
     }
 
     /// Returns the client with the specified id
+    #[graphql(guard = "UserGuard")]
     async fn client(&self, ctx: &Context<'_>, client_id: i32) -> Option<Client> {
         use crate::schema::clients::dsl::*;
         clients
@@ -103,6 +110,7 @@ impl QueryRoot {
     }
 
     /// Returns all the clients from the database
+    #[graphql(guard = "UserGuard")]
     async fn clients(&self, ctx: &Context<'_>) -> Vec<Client> {
         use crate::schema::clients::dsl::*;
         clients
@@ -114,6 +122,7 @@ impl QueryRoot {
     }
 
     /// Returns the server with the given id
+    #[graphql(guard = "UserGuard")]
     async fn server(&self, ctx: &Context<'_>, server_id: i32) -> Option<Server> {
         Server::get_by_id(&create_connection(ctx), server_id)
             .ok()
@@ -121,6 +130,7 @@ impl QueryRoot {
     }
 
     /// Returns all the servers from the database
+    #[graphql(guard = "UserGuard")]
     async fn servers(&self, ctx: &Context<'_>) -> Vec<Server> {
         use crate::schema::servers::dsl::*;
         servers
@@ -132,19 +142,9 @@ impl QueryRoot {
     }
 
     //// Validates the given token
-    async fn validate_token(&self, ctx: &Context<'_>, token: String) -> Result<bool> {
-        let secret_key = ctx.data::<Arc<SecretKey>>()?;
-
-        decode::<Claims>(
-            &token,
-            &DecodingKey::from_secret(secret_key.to_string().as_bytes()),
-            &Validation::new(Algorithm::HS256),
-        )
-        .map_err(|_| {
-            Error::new("Token inavlid")
-        })?;
-
-        Ok(true)
+    async fn validate_token(&self, ctx: &Context<'_>, token: String) -> bool {
+        let secret_key = ctx.data::<Arc<SecretKey>>().expect("Secret key not found");
+        is_valid_token(&secret_key, &token)
     }
 }
 
@@ -154,12 +154,14 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
     /// Generates a keypair
+    #[graphql(guard = "UserGuard")]
     async fn generate_keypair(&self, ctx: &Context<'_>) -> Keypair {
         let (priv_key, pub_key) = Keypair::generate_keypair();
         Keypair::create(&create_connection(ctx), &pub_key, &priv_key)
     }
 
     /// Creates a new dns server
+    #[graphql(guard = "UserGuard")]
     async fn create_dns_server(
         &self,
         ctx: &Context<'_>,
@@ -169,6 +171,7 @@ impl Mutation {
     }
 
     /// Updates an existing dns server
+    #[graphql(guard = "UserGuard")]
     async fn update_dns_server(
         &self,
         ctx: &Context<'_>,
@@ -179,6 +182,7 @@ impl Mutation {
     }
 
     /// Deletes a dns server
+    #[graphql(guard = "UserGuard")]
     async fn delete_dns_server(
         &self,
         ctx: &Context<'_>,
@@ -188,6 +192,7 @@ impl Mutation {
     }
 
     /// Creates a vpn network
+    #[graphql(guard = "UserGuard")]
     async fn create_vpn_network(
         &self,
         ctx: &Context<'_>,
@@ -197,6 +202,7 @@ impl Mutation {
     }
 
     /// Updates an existing vpn network
+    #[graphql(guard = "UserGuard")]
     async fn update_vpn_network(
         &self,
         ctx: &Context<'_>,
@@ -207,31 +213,37 @@ impl Mutation {
     }
 
     /// Deletes a vpn network
+    #[graphql(guard = "UserGuard")]
     async fn delete_vpn_network(&self, ctx: &Context<'_>, network_id: i32) -> Result<bool> {
         VpnNetwork::delete(&create_connection(ctx), network_id)
     }
 
     /// Creates a client
+    #[graphql(guard = "UserGuard")]
     async fn create_client(&self, ctx: &Context<'_>, client: InputClient) -> Result<Client> {
         Client::create(&create_connection(ctx), &client).map(Client::from)
     }
 
     /// Deletes a client
+    #[graphql(guard = "UserGuard")]
     async fn delete_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<bool> {
         Client::delete(&create_connection(ctx), client_id)
     }
 
     /// Creates a server
+    #[graphql(guard = "UserGuard")]
     async fn create_server(&self, ctx: &Context<'_>, server: InputServer) -> Result<Server> {
         Server::create(&create_connection(ctx), &server).map(Server::from)
     }
 
     /// Deletes a server
+    #[graphql(guard = "UserGuard")]
     async fn delete_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<bool> {
         Server::delete(&create_connection(ctx), server_id)
     }
 
     /// Endpoint for retrieving a JWT that is necessary for the other requests
+    #[graphql(guard = "UserGuard")]
     async fn login(&self, ctx: &Context<'_>, username: String, password: String) -> Result<String> {
         let user = User::get_by_name(&create_connection(ctx), username)?;
         let verify_password = bcrypt::verify(password, &user.password).map_err(Error::from)?;

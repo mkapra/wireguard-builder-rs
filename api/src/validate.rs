@@ -1,7 +1,12 @@
 //! Provides some functions for validating content
+use async_graphql::*;
 use ipaddress::IPAddress;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::net::Ipv4Addr;
+use std::sync::Arc;
 
+use crate::Token;
+use crate::crypto::{Claims, SecretKey};
 use crate::database::DatabaseConnection;
 use crate::models::{Client, Server};
 
@@ -28,6 +33,35 @@ pub fn is_keypair_used(connection: &DatabaseConnection, keypair_id: i32) -> bool
         .extend(Server::get_keypair_ids(connection).expect("Error while querying the database"));
 
     used_keypairs.contains(&keypair_id)
+}
+
+pub fn is_valid_token(secret_key: &Arc<SecretKey>, token: &str) -> bool {
+    match decode::<Claims>(
+        &token,
+        &DecodingKey::from_secret(secret_key.to_string().as_bytes()),
+        &Validation::new(Algorithm::HS256),
+    ) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
+pub struct UserGuard;
+
+#[async_trait::async_trait]
+impl Guard for UserGuard {
+    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
+        let secret_key = ctx.data::<Arc<SecretKey>>().expect("Could not find secret key");
+        if let Ok(token) = ctx.data::<Token>() {
+            if let Some(t) = token.get_token() {
+                if is_valid_token(secret_key, &t) {
+                    return Ok(())
+                }
+            }
+        }
+
+        Err(Error::new("Forbidden"))
+    }
 }
 
 #[cfg(test)]

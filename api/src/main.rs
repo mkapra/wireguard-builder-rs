@@ -32,6 +32,12 @@ fn run_migrations(db: &Database) {
 #[derive(Debug)]
 pub struct Token(Option<String>);
 
+impl Token {
+    pub fn get_token(&self) -> Option<&String> {
+        self.0.as_ref()
+    }
+}
+
 /// Retrieves the `Token` Header from the request and returns a `Token` object that can be passed as context
 fn get_token_from_headers(headers: &HeaderMap) -> Token {
     match headers.get("Token") {
