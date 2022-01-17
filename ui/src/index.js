@@ -29,7 +29,6 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();
-  console.log("TOKEN BY GET:", token);
   return {
     headers: {
       ...headers,
