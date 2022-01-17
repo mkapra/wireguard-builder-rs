@@ -1,11 +1,11 @@
 import { useQuery, gql } from "@apollo/client";
 import React, { useState } from "react";
 
-import Table from "./Table";
-import Searchbar from "./Searchbar";
+import Table from "./components/Table";
+import Searchbar from "./components/Searchbar";
+import Error from "./components/Error";
+import Button from "./components/Button";
 import NewDnsServer from "./NewDnsServer";
-import Error from "./Error";
-import Button from "./Button";
 
 const GET_DNS_SERVERS = gql`
   query Query {

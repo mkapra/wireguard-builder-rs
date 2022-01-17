@@ -1,8 +1,8 @@
 import { Outlet, Navigate } from "react-router-dom";
 import React from "react";
 
-import Navbar from "./Navbar";
-import { getAccessToken } from "./accessToken";
+import Navbar from "./components/Navbar";
+import { getAccessToken } from "./helpers/accessToken";
 import { toast } from "react-toastify";
 
 function App() {

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 
-import Table from "./Table";
-import Searchbar from "./Searchbar";
-import Error from "./Error";
+import Table from "./components/Table";
+import Searchbar from "./components/Searchbar";
+import Error from "./components/Error";
+import Button from "./components/Button";
 import NewVpnNetwork from "./NewVpnNetwork";
-import Button from "./Button";
 
 const GET_VPN_NETWORKS = gql`
   query Query {

@@ -5,10 +5,10 @@ import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
 import { GET_CLIENTS } from "./ClientList";
-import Modal from "./Modal";
-import FormInputField from "./FormInputField";
-import SubmitButton from "./SubmitButton";
-import SelectInputField from "./SelectInputField";
+import Modal from "./components/Modal";
+import FormInputField from "./components/FormInputField";
+import SubmitButton from "./components/SubmitButton";
+import SelectInputField from "./components/SelectInputField";
 
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 

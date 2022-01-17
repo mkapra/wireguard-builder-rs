@@ -21,7 +21,7 @@ import VpnNetworkList from "./VpnNetworkList";
 import ServerList from "./ServerList";
 import ClientList from "./ClientList";
 import Login from "./Login";
-import { getAccessToken } from "./accessToken";
+import { getAccessToken } from "./helpers/accessToken";
 
 const httpLink = createHttpLink({
   uri: process.env.REACT_APP_GRAPHQL_URL || "http://localhost:8000/",

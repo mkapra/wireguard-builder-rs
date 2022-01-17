@@ -4,8 +4,8 @@ import { gql, useQuery } from "@apollo/client";
 import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
-import Modal from "./Modal";
-import ConfigurationViewer from "./ConfigurationViewer";
+import Modal from "./components/Modal";
+import ConfigurationViewer from "./components/ConfigurationViewer";
 
 const GET_CLIENT = gql`
   query Query($id: ID!) {

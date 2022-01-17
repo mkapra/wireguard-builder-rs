@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
-import Modal from "./Modal";
-import ConfigurationViewer from "./ConfigurationViewer";
+import Modal from "./components/Modal";
+import ConfigurationViewer from "./components/ConfigurationViewer";
 
 const GET_SERVER = gql`
   query Query($id: ID!) {
