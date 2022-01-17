@@ -75,6 +75,15 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
 </pre><pre class="rust"><code><span class="macro">table!</span> {
     <span class="ident">clients</span> (<span class="ident">id</span>) {
         <span class="ident">id</span> -&gt; <span class="ident">Int4</span>,
@@ -117,6 +126,14 @@
 }
 
 <span class="macro">table!</span> {
+    <span class="ident">users</span> (<span class="ident">id</span>) {
+        <span class="ident">id</span> -&gt; <span class="ident">Int4</span>,
+        <span class="ident">username</span> -&gt; <span class="ident">Text</span>,
+        <span class="ident">password</span> -&gt; <span class="ident">Text</span>,
+    }
+}
+
+<span class="macro">table!</span> {
     <span class="ident">vpn_ip_addresses</span> (<span class="ident">id</span>) {
         <span class="ident">id</span> -&gt; <span class="ident">Int4</span>,
         <span class="ident">vpn_network_id</span> -&gt; <span class="ident">Int4</span>,
@@ -148,6 +165,7 @@
     <span class="ident">dns_servers</span>,
     <span class="ident">keypairs</span>,
     <span class="ident">servers</span>,
+    <span class="ident">users</span>,
     <span class="ident">vpn_ip_addresses</span>,
     <span class="ident">vpn_networks</span>,
 );

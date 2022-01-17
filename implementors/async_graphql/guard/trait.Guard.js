@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["wireguard_builder_rs"] = [{"text":"impl Guard for <a class=\"struct\" href=\"wireguard_builder_rs/validate/struct.UserGuard.html\" title=\"struct wireguard_builder_rs::validate::UserGuard\">UserGuard</a>","synthetic":false,"types":["wireguard_builder_rs::validate::UserGuard"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
