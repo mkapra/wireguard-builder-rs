@@ -4,10 +4,10 @@ import { gql, useQuery, useMutation } from "@apollo/client";
 import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
-import Modal from "./Modal";
-import FormInputField from "./FormInputField";
-import SubmitButton from "./SubmitButton";
-import SelectInputField from "./SelectInputField";
+import Modal from "./components/Modal";
+import FormInputField from "./components/FormInputField";
+import SubmitButton from "./components/SubmitButton";
+import SelectInputField from "./components/SelectInputField";
 import { GET_SERVERS } from "./ServerList";
 
 const GET_REFERENCES = gql`

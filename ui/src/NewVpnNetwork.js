@@ -4,9 +4,9 @@ import { gql, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 
 import { GET_VPN_NETWORKS } from "./VpnNetworkList";
-import FormInputField from "./FormInputField";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import FormInputField from "./components/FormInputField";
+import Modal from "./components/Modal";
+import SubmitButton from "./components/SubmitButton";
 
 const CREATE_VPN_NETWORK = gql`
   mutation Mutation($newVpnNetwork: InputVpnNetwork!) {

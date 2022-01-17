@@ -1,12 +1,11 @@
-/* eslint-disable */
 import React, { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
 
-import Logo from "./Logo";
-import FormInputField from "./FormInputField";
-import SubmitButton from "./SubmitButton";
+import Logo from "./components/Logo";
+import FormInputField from "./components/FormInputField";
+import SubmitButton from "./components/SubmitButton";
 import { useNavigate } from "react-router-dom";
-import { setAccessToken } from "./accessToken";
+import { setAccessToken } from "./helpers/accessToken";
 
 const LOGIN = gql`
   mutation Mutation($username: String!, $password: String!) {

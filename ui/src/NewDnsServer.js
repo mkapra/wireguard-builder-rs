@@ -4,9 +4,9 @@ import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 
 import { GET_DNS_SERVERS } from "./DnsServerList";
-import Modal from "./Modal";
-import FormInputField from "./FormInputField";
-import SubmitButton from "./SubmitButton";
+import Modal from "./components/Modal";
+import FormInputField from "./components/FormInputField";
+import SubmitButton from "./components/SubmitButton";
 
 const CREATE_DNS_SERVER = gql`
   mutation CreateDnsServer($dnsServer: InputDnsServer!) {

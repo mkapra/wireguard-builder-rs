@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 
-import Table from "./Table";
-import Error from "./Error";
-import Searchbar from "./Searchbar";
-import Button from "./Button";
+import Table from "./components/Table";
+import Error from "./components/Error";
+import Searchbar from "./components/Searchbar";
+import Button from "./components/Button";
 import NewClient from "./NewClient";
 import ClientDetail from "./ClientDetail";
 
