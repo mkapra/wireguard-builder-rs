@@ -243,7 +243,6 @@ impl Mutation {
     }
 
     /// Endpoint for retrieving a JWT that is necessary for the other requests
-    #[graphql(guard = "UserGuard")]
     async fn login(&self, ctx: &Context<'_>, username: String, password: String) -> Result<String> {
         let user = User::get_by_name(&create_connection(ctx), username)?;
         let verify_password = bcrypt::verify(password, &user.password).map_err(Error::from)?;
