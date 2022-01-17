@@ -1,9 +1,17 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import React from "react";
 
 import Navbar from "./Navbar";
+import { getAccessToken } from "./accessToken";
+import { toast } from "react-toastify";
 
 function App() {
+  if (!getAccessToken()) {
+    toast.error("You must be logged in to view this page.", {
+      toastId: "auth-error",
+    });
+    return <Navigate to="/login" />;
+  }
   return (
     <div className="App flex overflow-hidden h-screen">
       <Navbar />

@@ -40,6 +40,14 @@ table! {
 }
 
 table! {
+    users (id) {
+        id -> Int4,
+        username -> Text,
+        password -> Text,
+    }
+}
+
+table! {
     vpn_ip_addresses (id) {
         id -> Int4,
         vpn_network_id -> Int4,
@@ -71,6 +79,7 @@ allow_tables_to_appear_in_same_query!(
     dns_servers,
     keypairs,
     servers,
+    users,
     vpn_ip_addresses,
     vpn_networks,
 );
