@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
 import { GET_CLIENTS } from "./ClientList";
@@ -9,8 +8,7 @@ import Modal from "./components/Modal";
 import FormInputField from "./components/FormInputField";
 import SubmitButton from "./components/SubmitButton";
 import SelectInputField from "./components/SelectInputField";
-
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import Loading from "./components/Loading";
 
 const GET_REFERENCES = gql`
   query GetReferences {
@@ -102,17 +100,7 @@ const NewClient = ({ setIsOpen }) => {
       });
   };
 
-  if (loading) {
-    return (
-      <Loader
-        type="Puff"
-        color="#00BFFF"
-        height={100}
-        width={100}
-        timeout={3000}
-      />
-    );
-  }
+  if (loading) return <Loading />;
 
   if (!data) {
     return null;
