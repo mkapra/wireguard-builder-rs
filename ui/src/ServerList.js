@@ -7,6 +7,7 @@ import Searchbar from "./components/Searchbar";
 import Button from "./components/Button";
 import NewServer from "./NewServer";
 import ServerDetail from "./ServerDetail";
+import Loading from "./components/Loading";
 
 const GET_SERVERS = gql`
   query Query {
@@ -33,7 +34,7 @@ const ServerList = () => {
   const [viewModalIsOpen, setViewModalIsOpen] = useState(false);
   const [selectedServerId, setSelectedServerId] = useState(null);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   return (
     <>

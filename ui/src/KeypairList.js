@@ -5,6 +5,7 @@ import React from "react";
 import Table from "./components/Table";
 import Error from "./components/Error";
 import Button from "./components/Button";
+import Loading from "./components/Loading";
 
 const GET_KEYPAIRS = gql`
   query Query {
@@ -51,8 +52,8 @@ const KeypairList = () => {
     refetchQueries: [{ query: GET_KEYPAIRS }],
   });
 
-  if (listLoading) return <p>Loading...</p>;
-  if (generateLoading) return <p>Generate Keypair...</p>;
+  if (listLoading) return <Loading />;
+  if (generateLoading) return <Loading />;
 
   const successGeneratedKeypair = (id) => {
     toast.success(`Keypair with id ${id} created successfully`, {

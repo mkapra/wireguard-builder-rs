@@ -5,6 +5,7 @@ import Table from "./components/Table";
 import Searchbar from "./components/Searchbar";
 import Error from "./components/Error";
 import Button from "./components/Button";
+import Loading from "./components/Loading";
 import NewDnsServer from "./NewDnsServer";
 
 const GET_DNS_SERVERS = gql`
@@ -23,7 +24,7 @@ const DnsServerList = () => {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   return (
     <>

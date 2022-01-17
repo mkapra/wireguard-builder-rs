@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { gql, useQuery } from "@apollo/client";
-import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
 import Modal from "./components/Modal";
 import ConfigurationViewer from "./components/ConfigurationViewer";
+import Loading from "./components/Loading";
 
 const GET_CLIENT = gql`
   query Query($id: ID!) {
@@ -21,17 +21,8 @@ const ClientDetail = ({ setIsOpen, clientId }) => {
     variables: { id: clientId },
   });
 
-  if (loading) {
-    return (
-      <Loader
-        type="Puff"
-        color="#00BFFF"
-        height={100}
-        width={100}
-        timeout={3000}
-      />
-    );
-  }
+  if (loading) return <Loading />;
+
   if (error) {
     toast.error("Could not fetch data from API: " + error.message, {
       toastId: "query-error",

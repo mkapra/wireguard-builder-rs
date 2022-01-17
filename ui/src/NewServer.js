@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import Loader from "react-loader-spinner";
 import { toast } from "react-toastify";
 
 import Modal from "./components/Modal";
 import FormInputField from "./components/FormInputField";
 import SubmitButton from "./components/SubmitButton";
 import SelectInputField from "./components/SelectInputField";
+import Loading from "./components/Loading";
 import { GET_SERVERS } from "./ServerList";
 
 const GET_REFERENCES = gql`
@@ -47,17 +47,7 @@ const NewServer = ({ setIsOpen }) => {
     refetchQueries: [{ query: GET_SERVERS }, { query: GET_REFERENCES }],
   });
 
-  if (loading) {
-    return (
-      <Loader
-        type="Puff"
-        color="#00BFFF"
-        height={100}
-        width={100}
-        timeout={3000}
-      />
-    );
-  }
+  if (loading) return <Loading />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -150,7 +140,7 @@ const NewServer = ({ setIsOpen }) => {
         />
 
         <SelectInputField
-        labelName="VPN Network"
+          labelName="VPN Network"
           mainField="name"
           options={data.vpnNetworks}
           secondField="ipNetwork"

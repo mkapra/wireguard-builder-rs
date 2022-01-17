@@ -6,6 +6,7 @@ import Searchbar from "./components/Searchbar";
 import Error from "./components/Error";
 import Button from "./components/Button";
 import NewVpnNetwork from "./NewVpnNetwork";
+import Loading from "./components/Loading";
 
 const GET_VPN_NETWORKS = gql`
   query Query {
@@ -26,7 +27,7 @@ const VpnNetworkList = () => {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   const matches = (vpnNetwork) => {
     return (

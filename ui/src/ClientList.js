@@ -5,6 +5,7 @@ import Table from "./components/Table";
 import Error from "./components/Error";
 import Searchbar from "./components/Searchbar";
 import Button from "./components/Button";
+import Loading from "./components/Loading";
 import NewClient from "./NewClient";
 import ClientDetail from "./ClientDetail";
 
@@ -36,7 +37,7 @@ const ClientList = () => {
   const [detailModalIsOpen, setDetailModalIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   return (
     <>
