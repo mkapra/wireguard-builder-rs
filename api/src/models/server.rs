@@ -56,13 +56,13 @@ struct InsertableServer {
 #[belongs_to(Keypair)]
 #[belongs_to(VpnIpAddress)]
 pub struct QueryableServer {
-    id: i32,
-    name: String,
-    description: Option<String>,
-    forward_interface: Option<String>,
-    external_ip_address: String,
-    keypair_id: i32,
-    vpn_ip_address_id: i32,
+    pub id: i32,
+    pub name: String,
+    pub description: Option<String>,
+    pub forward_interface: Option<String>,
+    pub external_ip_address: String,
+    pub keypair_id: i32,
+    pub vpn_ip_address_id: i32,
 }
 
 /// Represents the configuration for a server
