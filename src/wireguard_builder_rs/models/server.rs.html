@@ -375,13 +375,13 @@ AllowedIps = {{ip_address}}/32
 <span class="attribute">#[<span class="ident">belongs_to</span>(<span class="ident">Keypair</span>)]</span>
 <span class="attribute">#[<span class="ident">belongs_to</span>(<span class="ident">VpnIpAddress</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QueryableServer</span> {
-    <span class="ident">id</span>: <span class="ident">i32</span>,
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">forward_interface</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">external_ip_address</span>: <span class="ident">String</span>,
-    <span class="ident">keypair_id</span>: <span class="ident">i32</span>,
-    <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">forward_interface</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">external_ip_address</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">keypair_id</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">vpn_ip_address_id</span>: <span class="ident">i32</span>,
 }
 
 <span class="doccomment">/// Represents the configuration for a server</span>

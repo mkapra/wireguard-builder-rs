@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_impl_queryable_for_user",""]],"struct":[["JwtUser",""],["User",""]]});
+initSidebarItems({"fn":[["_impl_insertable_for_graphqluser",""],["_impl_queryable_for_user",""]],"struct":[["GraphQLUser",""],["JwtUser",""],["User",""]]});
