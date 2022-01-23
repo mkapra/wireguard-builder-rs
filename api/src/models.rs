@@ -1,13 +1,14 @@
 //! The GraphQL schema
 use async_graphql::{Context, *};
 use jsonwebtoken::{encode, EncodingKey, Header};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use std::sync::Arc;
 
 use crate::crypto::{Claims, SecretKey};
 use crate::database::{Database, DatabaseConnection};
 use crate::diesel::prelude::*;
 use crate::validate::{is_valid_token, UserGuard};
-
 mod keypair;
 use keypair::Keypair;
 mod dns_server;
@@ -22,7 +23,7 @@ mod vpn_ip_address;
 pub use server::Server;
 use server::{InputServer, QueryableServer};
 mod user;
-pub use user::{JwtUser, User};
+pub use user::{GraphQLUser, JwtUser, User};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -256,6 +257,26 @@ impl Mutation {
             &Claims::new(&user.into()),
             &EncodingKey::from_secret(secret_key.to_string().as_bytes()),
         )?)
+    }
+
+    /// Returns a username and password that can be used by a server to access its config
+    #[graphql(guard = "UserGuard")]
+    async fn get_login_for_server(&self, ctx: &Context<'_>, server_id: i32) -> Result<GraphQLUser> {
+        let connection = create_connection(ctx);
+        let server = Server::get_by_id(&connection, server_id)?;
+
+        let username = server.name.replace(" ", "_").to_lowercase();
+        User::create(&connection, username)
+    }
+
+    /// Returns a username and password that can be used by a client to access its config
+    #[graphql(guard = "UserGuard")]
+    async fn get_login_for_client(&self, ctx: &Context<'_>, client_id: i32) -> Result<GraphQLUser> {
+        let connection = create_connection(ctx);
+        let client = Client::get_by_id(&connection, client_id)?;
+
+        let username = client.name.replace(" ", "_").to_lowercase();
+        User::create(&connection, username)
     }
 }
 

@@ -327,7 +327,7 @@ impl Client {
     ///
     /// # Panics
     /// Panics if no client was found
-    fn get_by_id(connection: &DatabaseConnection, client_id: i32) -> Result<QueryableClient> {
+    pub fn get_by_id(connection: &DatabaseConnection, client_id: i32) -> Result<QueryableClient> {
         use crate::schema::clients::dsl::*;
         clients
             .filter(id.eq(client_id))
