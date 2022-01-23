@@ -14,7 +14,7 @@ impl User {
         use crate::schema::users::dsl::*;
 
         users
-            .filter(username.eq(username))
+            .filter(username.eq(&name))
             .first::<User>(connection)
             .map_err(|e| {
                 Error::new(format!(
