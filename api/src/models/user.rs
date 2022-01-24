@@ -3,7 +3,7 @@ use super::*;
 use crate::schema::users;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Queryable, Clone, Deserialize, Serialize)]
+#[derive(Debug, Queryable, Clone, Deserialize, Serialize, Identifiable)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -44,6 +44,31 @@ impl User {
                 ))
             })
     }
+
+    pub fn get_by_id(connection: &DatabaseConnection, user_id: i32) -> Result<Self> {
+        use crate::schema::users::dsl::*;
+
+        users
+            .filter(id.eq(user_id))
+            .first::<User>(connection)
+            .map_err(|e| {
+                Error::new(format!(
+                    "Could not find user with id '{}' ({:?})",
+                    user_id, e
+                ))
+            })
+    }
+
+    pub fn update_password(&self, connection: &DatabaseConnection, new_password: &str) -> Result<GraphQLUser> {
+        use crate::schema::users::dsl::*;
+
+        let hashed_password = bcrypt::hash(&new_password, 8).map_err(Error::from)?;
+        diesel::update(self)
+            .set(password.eq(&hashed_password))
+            .get_result::<User>(connection)
+            .map(|u| GraphQLUser::new(u.username, new_password.to_owned()))
+            .map_err(|e| Error::new(format!("Could not update password for user {} ({:?})", &self.username, e)))
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -70,7 +95,7 @@ pub struct GraphQLUser {
 }
 
 impl GraphQLUser {
-    fn new(username: String, password: String) -> Self {
+    pub fn new(username: String, password: String) -> Self {
         GraphQLUser { username, password }
     }
 }

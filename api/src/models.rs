@@ -278,6 +278,20 @@ impl Mutation {
         let username = client.name.replace(" ", "_").to_lowercase();
         User::create(&connection, username)
     }
+
+    /// Change the password of the user
+    #[graphql(guard = "UserGuard")]
+    async fn change_password(&self, ctx: &Context<'_>, user_id: i32, old_password: String, new_password: String) -> Result<GraphQLUser> {
+        let connection = create_connection(ctx);
+        let user = User::get_by_id(&connection, user_id)?;
+
+        let verify_password = bcrypt::verify(old_password, &user.password).map_err(Error::from)?;
+        if !verify_password {
+            return Err(Error::new("Password does not match with the old password"))
+        }
+
+        user.update_password(&connection, &new_password)
+    }
 }
 
 /// Retrieves a single database connection from the database connection pool and returns it
