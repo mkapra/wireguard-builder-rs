@@ -59,7 +59,11 @@ impl User {
             })
     }
 
-    pub fn update_password(&self, connection: &DatabaseConnection, new_password: &str) -> Result<GraphQLUser> {
+    pub fn update_password(
+        &self,
+        connection: &DatabaseConnection,
+        new_password: &str,
+    ) -> Result<GraphQLUser> {
         use crate::schema::users::dsl::*;
 
         let hashed_password = bcrypt::hash(&new_password, 8).map_err(Error::from)?;
@@ -67,7 +71,12 @@ impl User {
             .set(password.eq(&hashed_password))
             .get_result::<User>(connection)
             .map(|u| GraphQLUser::new(u.username, new_password.to_owned()))
-            .map_err(|e| Error::new(format!("Could not update password for user {} ({:?})", &self.username, e)))
+            .map_err(|e| {
+                Error::new(format!(
+                    "Could not update password for user {} ({:?})",
+                    &self.username, e
+                ))
+            })
     }
 }
 
