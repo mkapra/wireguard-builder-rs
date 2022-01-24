@@ -54,6 +54,10 @@ fn get_token_from_headers(headers: &HeaderMap) -> Token {
 embed_migrations!();
 
 async fn gql_playground() -> HttpResponse {
+    if !cfg!(debug_assertions) {
+        return HttpResponse::NotFound().finish();
+    }
+
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(playground_source(GraphQLPlaygroundConfig::new("/")))
@@ -80,7 +84,12 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    println!("🚀 Server listening on http://localhost:8000");
+    let mut address = "0.0.0.0";
+    if cfg!(debug_assertions) {
+        address = "127.0.0.1";
+    }
+
+    println!("🚀 Server listening on http://{}:8000", address);
     HttpServer::new(move || {
         let db = Database::new(&database_url);
         run_migrations(&db);
@@ -99,7 +108,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/").guard(guard::Get()).to(gql_playground))
             .service(web::resource("/").guard(guard::Post()).to(index))
     })
-    .bind("127.0.0.1:8000")?
+    .bind((address, 8000))?
     .run()
     .await
 }
