@@ -47,6 +47,23 @@ const NewServer = ({ setIsOpen }) => {
     refetchQueries: [{ query: GET_SERVERS }, { query: GET_REFERENCES }],
   });
 
+  useEffect(() => {
+    if (data) {
+      if (data.vpnNetworks) {
+        setVpnNetwork(data.vpnNetworks[0].id);
+      }
+      if (data.unusedKeypairs) {
+        setKeypair(data.unusedKeypairs[0].id);
+      }
+    }
+  }, [data]);
+  if (error) {
+    toast.error("Could not fetch data from API: " + error.message, {
+      toastId: "query-error",
+    });
+    return null;
+  }
+
   if (loading) return <Loading />;
 
   const handleSubmit = async (e) => {
@@ -77,23 +94,6 @@ const NewServer = ({ setIsOpen }) => {
         });
       });
   };
-
-  useEffect(() => {
-    if (data) {
-      if (data.vpnNetworks) {
-        setVpnNetwork(data.vpnNetworks[0].id);
-      }
-      if (data.unusedKeypairs) {
-        setKeypair(data.unusedKeypairs[0].id);
-      }
-    }
-  }, [data]);
-  if (error) {
-    toast.error("Could not fetch data from API: " + error.message, {
-      toastId: "query-error",
-    });
-    return null;
-  }
 
   return (
     <Modal setIsOpen={setIsOpen} heading="Create new Server">

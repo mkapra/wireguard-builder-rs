@@ -1,8 +1,6 @@
 import React from "react";
 import { Oval } from "react-loader-spinner";
 
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-
 const Loading = () => {
   return (
     <div className="absolute top-0 left-0 overflow-hidden w-screen h-screen bg-black bg-opacity-40 flex items-center justify-center">

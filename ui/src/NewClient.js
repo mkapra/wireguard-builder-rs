@@ -41,7 +41,7 @@ const NewClient = ({ setIsOpen }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [ipAddress, setIpAddress] = useState("");
-  const [keepalive, setKeepalive] = useState(24);
+  const [keepalive, setKeepalive] = useState(25);
   const [vpnNetwork, setVpnNetwork] = useState("");
   const [keypair, setKeypair] = useState("");
   const [dnsServer, setDnsServer] = useState("");

@@ -38,7 +38,11 @@ const FormInputField = ({
           placeholder={placeholder}
           type={type}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) =>
+            type === "number"
+              ? setValue(parseInt(e.target.value))
+              : setValue(e.target.value)
+          }
           autoFocus={autoFocus || false}
         />
       )}

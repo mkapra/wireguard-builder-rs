@@ -11,6 +11,7 @@ import { setContext } from "@apollo/client/link/context";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 import "./index.css";
 import App from "./App";
