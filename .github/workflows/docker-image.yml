@@ -21,8 +21,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./api
-        tags: |
-          mkapra/wireguard-builder-rs:latest 
-          ghcr.io/mkapra/wireguard-builder-rs:latest
+        tags: ghcr.io/mkapra/wireguard-builder-rs:latest
         # build on feature branches, push only on main branch
         push: ${{ github.ref == 'refs/heads/main' }}
