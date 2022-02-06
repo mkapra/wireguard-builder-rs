@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS AllowedIpsClients;
+DROP TABLE IF EXISTS AllowedIps;
