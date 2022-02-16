@@ -35,15 +35,20 @@ pub fn is_keypair_used(connection: &DatabaseConnection, keypair_id: i32) -> bool
     used_keypairs.contains(&keypair_id)
 }
 
+/// Verifies that the given token can be decoded with the secret_key.
+///
+/// # Arguments
+/// * `secret_key` - The key that should be used to decrypt the token
+/// * `token` - The token that should be decrypted
+///
+/// # Returns
+/// `true` if the decryption was successful, `false` otherwise
 pub fn is_valid_token(secret_key: &Arc<SecretKey>, token: &str) -> bool {
-    match decode::<Claims>(
+    decode::<Claims>(
         &token,
         &DecodingKey::from_secret(secret_key.to_string().as_bytes()),
         &Validation::new(Algorithm::HS256),
-    ) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    ).is_ok()
 }
 
 pub struct UserGuard;
