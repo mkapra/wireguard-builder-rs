@@ -9,6 +9,14 @@ struct AllowedIPsMapping {
     client_id: i32,
 }
 
+#[derive(InputObject)]
+pub struct InputAllowedIpAddress {
+    /// The id of the client that should be associated with the address
+    pub client_id: i32,
+    #[graphql(validator(list, r"(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d).(?1).(?1).(?1)\/?(\d\d)?"))]
+    pub ip_address: String,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "allowedipsclients"]
 struct NewAllowedIPsMapping {
