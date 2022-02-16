@@ -24,6 +24,8 @@ pub use server::Server;
 use server::{InputServer, QueryableServer};
 mod user;
 pub use user::{GraphQLUser, JwtUser, User};
+mod allowed_ips;
+pub use allowed_ips::{AllowedIP, InputAllowedIpAddress};
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;
@@ -142,7 +144,7 @@ impl QueryRoot {
             .collect()
     }
 
-    //// Validates the given token
+    /// Validates the given token
     async fn validate_token(&self, ctx: &Context<'_>, token: String) -> bool {
         let secret_key = ctx.data::<Arc<SecretKey>>().expect("Secret key not found");
         is_valid_token(&secret_key, &token)
@@ -297,6 +299,18 @@ impl Mutation {
         }
 
         user.update_password(&connection, &new_password)
+    }
+
+    /// Add a allowed ip to an existing client
+    async fn assign_allowed_ip(
+        &self,
+        ctx: &Context<'_>,
+        mapping: InputAllowedIpAddress,
+    ) -> Result<Client> {
+        let connection = create_connection(ctx);
+        let client = Client::get_by_id(&connection, mapping.client_id)?;
+        AllowedIP::get_or_create(&connection, &mapping.ip_address, &client)?;
+        Client::get_by_id(&connection, mapping.client_id).map(Client::from)
     }
 }
 
