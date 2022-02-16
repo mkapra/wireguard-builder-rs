@@ -24,6 +24,8 @@ pub use server::Server;
 use server::{InputServer, QueryableServer};
 mod user;
 pub use user::{GraphQLUser, JwtUser, User};
+mod allowed_ips;
+pub use allowed_ips::AllowedIP;
 
 /// Represents the schema that is created by [`create_schema()`]
 pub type GrahpQLSchema = Schema<QueryRoot, Mutation, EmptySubscription>;

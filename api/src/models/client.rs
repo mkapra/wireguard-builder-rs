@@ -15,7 +15,7 @@ DNS = {{dnsServerIp}}
 
 [Peer]
 PublicKey = {{serverPublicKey}}
-AllowedIPs = 0.0.0.0/0
+AllowedIPs = {{allowedIps}}
 Endpoint = {{endpoint}}
 PersistentKeepalive = {{keepalive}}
 "#;
@@ -52,6 +52,10 @@ pub struct InputClient {
     pub dns_server_id: i32,
     /// The id of the keypair that should be used by the client
     pub keypair_id: i32,
+    /// A list of ip addresses that should be routed through the vpn tunnel. If this field is left empty
+    /// 0.0.0.0/0 is configured
+    #[graphql(validator(list, r"(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d).(?1).(?1).(?1)\/?(\d\d)?"))]
+    pub allowed_ips: Option<Vec<String>>,
 }
 
 /// A client that is insertable into the database
@@ -69,8 +73,8 @@ struct NewClient<'a> {
 #[derive(Debug, SimpleObject)]
 #[graphql(complex)]
 pub struct Client {
-    id: i32,
-    name: String,
+    pub id: i32,
+    pub name: String,
     description: Option<String>,
     /// The interval in seconds where the client should reconnect to the server
     keepalive_interval: i32,
@@ -133,6 +137,17 @@ impl Client {
         data.insert("clientIp", format!("{}/{}", vpn_ip, vpn_network.subnetmask));
         // Keepalive Interval
         data.insert("keepalive", self.keepalive_interval.to_string());
+        // Allowed ips
+        let allowed_ips = if let Some(ips) = self.allowed_ips(ctx).await.ok()? {
+            if ips.is_empty() {
+                "0.0.0.0/0".to_string()
+            } else {
+                ips.join(", ")
+            }
+        } else {
+            "0.0.0/0".to_string()
+        };
+        data.insert("allowedIps", allowed_ips);
 
         Some(
             handlebars
@@ -204,6 +219,11 @@ impl Client {
             .first(&connection);
 
         result.ok().map(|(server, _)| Server::from(server))
+    }
+
+    async fn allowed_ips(&self, ctx: &Context<'_>) -> Option<Vec<String>> {
+        AllowedIP::get_by_client_id(&create_connection(ctx), self)
+            .map(|ips| ips.iter().map(|ip| format!("{}/{}", ip.ip, ip.subnetmask)).collect())
     }
 }
 
@@ -302,10 +322,19 @@ impl Client {
             vpn_ip_address_id: vpn_ip_obj.id,
         };
 
-        diesel::insert_into(clients::table)
+        let created_client = diesel::insert_into(clients::table)
             .values(&new_client)
-            .get_result(connection)
-            .map_err(Error::from)
+            .get_result::<QueryableClient>(connection)
+            .map_err(Error::from)?;
+
+        // Create vpn ip addresses
+        if let Some(ips) = &client.allowed_ips {
+            for ip in ips {
+                AllowedIP::get_or_create(connection, ip, &created_client)?;
+            }
+        }
+
+        Ok(created_client)
     }
 
     /// Returns all the ids of keypairs that are used by a client
