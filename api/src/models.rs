@@ -302,7 +302,11 @@ impl Mutation {
     }
 
     /// Add a allowed ip to an existing client
-    async fn assign_allowed_ip(&self, ctx: &Context<'_>, mapping: InputAllowedIpAddress) -> Result<Client> {
+    async fn assign_allowed_ip(
+        &self,
+        ctx: &Context<'_>,
+        mapping: InputAllowedIpAddress,
+    ) -> Result<Client> {
         let connection = create_connection(ctx);
         let client = Client::get_by_id(&connection, mapping.client_id)?;
         AllowedIP::get_or_create(&connection, &mapping.ip_address, &client)?;

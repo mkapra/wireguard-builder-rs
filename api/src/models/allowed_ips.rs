@@ -68,7 +68,10 @@ impl AllowedIP {
         AllowedIPsMapping::get_by_client_id(connection, client.id)
             .map(|ips| {
                 ips.iter()
-                    .map(|ip| Self::get_by_id(connection, ip.ip_id).expect(&format!("IP with id {} not found", ip.id)))
+                    .map(|ip| {
+                        Self::get_by_id(connection, ip.ip_id)
+                            .expect(&format!("IP with id {} not found", ip.id))
+                    })
                     .collect::<Vec<Self>>()
             })
             .ok()
@@ -110,13 +113,17 @@ impl AllowedIP {
                         .unwrap_or(&"24".to_string())
                         .parse()
                         .unwrap_or(24)),
-                )
+                ),
             )
             .first::<Self>(connection)
             .ok()
     }
 
-    pub fn get_or_create(connection: &DatabaseConnection, ip: &str, client: &QueryableClient) -> Result<Self> {
+    pub fn get_or_create(
+        connection: &DatabaseConnection,
+        ip: &str,
+        client: &QueryableClient,
+    ) -> Result<Self> {
         if let Some(ip) = Self::get_by_ip(connection, ip) {
             Self::assign_ip(connection, &ip, client)?;
             return Ok(ip);
@@ -127,8 +134,13 @@ impl AllowedIP {
             .split('/')
             .map(|s| s.to_string())
             .collect::<Vec<String>>();
-        let ip = splitted_ip.first().ok_or(Error::new("Not a valid ip address"))?;
-        let subnetmask = splitted_ip.get(1).map(|v| v.parse().unwrap()).unwrap_or(24 as u32);
+        let ip = splitted_ip
+            .first()
+            .ok_or(Error::new("Not a valid ip address"))?;
+        let subnetmask = splitted_ip
+            .get(1)
+            .map(|v| v.parse().unwrap())
+            .unwrap_or(24 as u32);
         Self::create(connection, client, ip, subnetmask)
     }
 
@@ -156,7 +168,11 @@ impl AllowedIP {
         Ok(created_ip)
     }
 
-    fn assign_ip(connection: &DatabaseConnection, allowed_ip: &Self, client: &QueryableClient) -> Result<()> {
+    fn assign_ip(
+        connection: &DatabaseConnection,
+        allowed_ip: &Self,
+        client: &QueryableClient,
+    ) -> Result<()> {
         let mapping = NewAllowedIPsMapping {
             ip_id: allowed_ip.id,
             client_id: client.id,

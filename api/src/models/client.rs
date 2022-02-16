@@ -222,8 +222,11 @@ impl Client {
     }
 
     async fn allowed_ips(&self, ctx: &Context<'_>) -> Option<Vec<String>> {
-        AllowedIP::get_by_client_id(&create_connection(ctx), self)
-            .map(|ips| ips.iter().map(|ip| format!("{}/{}", ip.ip, ip.subnetmask)).collect())
+        AllowedIP::get_by_client_id(&create_connection(ctx), self).map(|ips| {
+            ips.iter()
+                .map(|ip| format!("{}/{}", ip.ip, ip.subnetmask))
+                .collect()
+        })
     }
 }
 
