@@ -6,5 +6,5 @@
 
 Default login:
 
-* *Username*: admin
-* *Password*: &52*xTY$sPW@94*DVu!UHDfZwE7!WCkV
+* *Username*: `admin`
+* *Password*: `&52*xTY$sPW@94*DVu!UHDfZwE7!WCkV`
