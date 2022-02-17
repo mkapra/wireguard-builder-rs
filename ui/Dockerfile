@@ -2,7 +2,9 @@
 FROM node:lts as build
 WORKDIR /app
 
-ENV REACT_APP_GRAPHQL_URL http://localhost:4000/graphql
+ARG api_url=http://localhost:8000
+
+ENV REACT_APP_GRAPHQL_URL $api_url
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY ./package.json /app/
@@ -15,7 +17,4 @@ RUN npm run build
 # stage 2 - build the final image and copy the react build files
 FROM nginx:latest
 COPY --from=build /app/build /usr/share/nginx/html
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx/nginx.conf /etc/nginx/conf.d
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx-debug", "-g", "daemon off;"]
